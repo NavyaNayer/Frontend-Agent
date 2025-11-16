@@ -46,17 +46,38 @@ export async function generateComponent(component, prompt, screenshotPath) {
 
 MISSION: Create a component that is VISUALLY INDISTINGUISHABLE from the screenshot.
 
-STRICT RULES:
-1. Use ONLY the exact RGB colors extracted from the CSS (e.g., rgb(46,46,48), rgb(245,244,243))
-2. Match spacing EXACTLY using extracted pixel values (e.g., p-[20px], gap-[12px])
-3. Copy typography PRECISELY: font sizes, weights, line heights from computed styles
-4. Replicate borders, shadows, radius values EXACTLY as measured
-5. Use lucide-react icons with exact sizes matching the screenshot
-6. Format colors as: bg-[rgb(46,46,48)] text-[rgb(245,244,243)]
-7. NO generic Tailwind colors (gray-800, blue-500) - use EXACT RGB values only
-8. Study the screenshot's layout, spacing, alignment, colors before generating code
+STRICT COLOR MATCHING RULES:
+1. ALWAYS use rgb() format for extracted colors: bg-[rgb(46,46,48)] text-[rgb(245,244,243)]
+2. Study the "Extracted Design System" in the prompt for the complete color palette
+3. Identify which colors from the palette apply to each element:
+   - Dark backgrounds (46,46,48) for headers/sidebars
+   - Light backgrounds (249,248,248) for main content areas
+   - Text colors: dark (30,31,33) on light, light (245,244,243) on dark
+   - Accent colors: orange (255,88,74), blue (63,106,196), purple (184,172,255)
+4. NEVER use generic Tailwind colors (gray-800, blue-500) - ONLY exact RGB from extracted palette
+5. For hover states, use the same color with opacity: hover:bg-[rgb(46,46,48)]/80
 
-Your output will be evaluated on PIXEL-PERFECT visual matching. Any color/spacing deviation = failure.
+SPACING & LAYOUT PRECISION:
+1. Match EXACT pixel values from extracted spacing (p-[20px], gap-[12px], h-[48px])
+2. Study computed styles for padding, margin, gap, width, height values
+3. Use flexbox/grid properties from extracted styles: items-center, justify-between, flex-col
+
+TYPOGRAPHY MATCHING:
+1. Use font-family from extracted styles (usually -apple-system stack)
+2. Match font-size: 12px=text-xs, 14px=text-sm, 16px=text-base, 20px=text-xl
+3. Match font-weight: 400=font-normal, 500=font-medium, 600=font-semibold
+
+VISUAL EFFECTS:
+1. Copy border-radius values: 4px=rounded, 6px=rounded-md, 8px=rounded-lg, 50%=rounded-full
+2. Match box-shadow from extracted values or use: shadow-sm, shadow, shadow-md
+3. Add transitions: transition-colors duration-150
+
+ICONS:
+1. Use lucide-react for all icons: import { Icon Name } from 'lucide-react'
+2. Match icon size from screenshot (usually 16-20px): <Icon size={20} />
+3. Color icons with text color: className="text-[rgb(245,244,243)]"
+
+Your output will be evaluated on PIXEL-PERFECT visual matching. Study the extracted design tokens carefully!
 
 Generate clean TypeScript React code with Tailwind CSS utilities.`
       },
@@ -159,28 +180,44 @@ export async function generatePage(pageData, components, prompt, screenshotPath)
 
 MISSION: Create a page layout that is VISUALLY INDISTINGUISHABLE from the screenshot.
 
-CRITICAL REQUIREMENTS:
-1. STUDY THE SCREENSHOT: Analyze layout structure, spacing, colors, component placement
-2. USE EXACT RGB COLORS: bg-[rgb(249,248,248)], bg-[rgb(46,46,48)], text-[rgb(30,31,33)]
-3. MATCH LAYOUT STRUCTURE: Identify if it's sidebar+header, grid, or other pattern
-4. PRECISE SPACING: Use exact padding/margins from extracted values (p-[20px], gap-[24px])
-5. COMPONENT ARRANGEMENT: Place components exactly as shown in screenshot
-6. CONTENT MATCHING: Include ALL visible text, buttons, headings from screenshot
-7. BACKGROUND COLORS: Use extracted design tokens for all background areas
-8. NO GENERIC COLORS: Never use gray-100, blue-500 - use EXACT RGB values only
+COLOR MATCHING STRATEGY (TOP PRIORITY):
+1. Study the "KEY COLORS FOR THIS PAGE" section in the prompt - these are EXTRACTED from the actual site
+2. Identify areas in screenshot:
+   - Dark areas (headers/sidebars): use bg-[rgb(46,46,48)]
+   - Light areas (main content): use bg-[rgb(249,248,248)]
+   - White cards: use bg-white
+   - Text on dark: text-[rgb(245,244,243)]
+   - Text on light: text-[rgb(30,31,33)]
+   - Secondary text: text-[rgb(109,110,111)]
+3. Accent colors for buttons/highlights:
+   - Primary action: bg-[rgb(255,88,74)] (orange/red)
+   - Links/interactive: text-[rgb(63,106,196)] (blue)
+   - Warnings/banners: bg-[rgb(241,189,108)] (yellow)
+4. ALWAYS use rgb() format: bg-[rgb(R,G,B)] text-[rgb(R,G,B)]
+5. NEVER use generic names: NO gray-100, NO blue-500, NO slate-800
 
-Common Asana Layout Pattern:
-<div className="flex h-screen bg-[rgb(249,248,248)]">
-  <Sidebar />
-  <div className="flex-1 flex flex-col">
-    <Header />
-    <main className="flex-1 overflow-auto px-8 py-6">
-      {/* Exact content from screenshot */}
-    </main>
-  </div>
-</div>
+LAYOUT STRUCTURE:
+1. Analyze screenshot for main layout pattern
+2. Common patterns:
+   - Sidebar + Header + Main: <div className="flex h-screen"><Sidebar /><div className="flex-1 flex flex-col"><Header /><main>...</main></div></div>
+   - Banner + Content: <div><div className="bg-[rgb(241,189,108)]">...</div><main>...</main></div>
+3. Match exact widths/heights: Sidebar typically w-60 (240px), Header h-12 (48px)
+4. Use extracted spacing values: p-6, p-8, gap-4, gap-6
 
-Your output will be evaluated on PIXEL-PERFECT layout matching. Any spacing/color deviation = failure.
+COMPONENT USAGE:
+1. Import available components: import { Header, Sidebar } from '../components'
+2. Use them as-is with proper placement
+3. Add exact content around them matching screenshot
+
+PRECISION CHECKLIST:
+☐ Background colors match extracted RGB values
+☐ Text colors match for dark/light backgrounds  
+☐ Layout structure matches screenshot (sidebar position, header height)
+☐ Spacing matches extracted values
+☐ All content from screenshot is included
+☐ Components are imported and placed correctly
+
+Your output will be evaluated on PIXEL-PERFECT matching. Study the extracted color tokens!
 
 Generate clean TypeScript React code with proper component imports.`
       },

@@ -11,6 +11,9 @@ import path from 'path';
 export async function parseCSSFiles(cssDirectory) {
   const styleData = {
     colors: new Set(),
+    backgroundColors: new Set(),
+    textColors: new Set(),
+    borderColors: new Set(),
     cssVariables: {},
     fontFamilies: new Set(),
     fontSizes: new Set(),
@@ -30,8 +33,15 @@ export async function parseCSSFiles(cssDirectory) {
       extractStyles(content, styleData);
     }
 
+    // Categorize and create design tokens
+    const designTokens = categorizeColors(styleData);
+
     return {
       colors: Array.from(styleData.colors),
+      backgroundColors: Array.from(styleData.backgroundColors),
+      textColors: Array.from(styleData.textColors),
+      borderColors: Array.from(styleData.borderColors),
+      designTokens: designTokens,
       cssVariables: styleData.cssVariables,
       fontFamilies: Array.from(styleData.fontFamilies),
       fontSizes: Array.from(styleData.fontSizes),
@@ -56,7 +66,37 @@ function extractStyles(css, styleData) {
     styleData.cssVariables[`--${match[1]}`] = match[2].trim();
   }
 
-  // Extract colors (hex, rgb, rgba, hsl)
+  // Extract background colors
+  const bgColorRegex = /background-color:\s*(#[0-9a-fA-F]{3,8}|rgba?\([^)]+\)|hsla?\([^)]+\));/g;
+  while ((match = bgColorRegex.exec(css)) !== null) {
+    const color = match[1];
+    if (color !== 'rgba(0, 0, 0, 0)' && !color.includes('inherit')) {
+      styleData.backgroundColors.add(color);
+      styleData.colors.add(color);
+    }
+  }
+
+  // Extract text colors
+  const textColorRegex = /(?:^|[^-])color:\s*(#[0-9a-fA-F]{3,8}|rgba?\([^)]+\)|hsla?\([^)]+\));/gm;
+  while ((match = textColorRegex.exec(css)) !== null) {
+    const color = match[1];
+    if (color !== 'rgba(0, 0, 0, 0)' && !color.includes('inherit')) {
+      styleData.textColors.add(color);
+      styleData.colors.add(color);
+    }
+  }
+
+  // Extract border colors
+  const borderColorRegex = /border(?:-(?:top|right|bottom|left))?-color:\s*(#[0-9a-fA-F]{3,8}|rgba?\([^)]+\)|hsla?\([^)]+\));/g;
+  while ((match = borderColorRegex.exec(css)) !== null) {
+    const color = match[1];
+    if (color !== 'rgba(0, 0, 0, 0)' && !color.includes('inherit')) {
+      styleData.borderColors.add(color);
+      styleData.colors.add(color);
+    }
+  }
+
+  // Extract colors (hex, rgb, rgba, hsl) - catch-all
   const colorRegex = /(#[0-9a-fA-F]{3,8}|rgba?\([^)]+\)|hsla?\([^)]+\))/g;
   while ((match = colorRegex.exec(css)) !== null) {
     const color = match[1];
@@ -107,6 +147,125 @@ function extractStyles(css, styleData) {
       styleData.boxShadows.add(shadow);
     }
   }
+}
+
+/**
+ * Categorize colors into semantic design tokens
+ */
+function categorizeColors(styleData) {
+  const tokens = {
+    backgrounds: {},
+    text: {},
+    accents: {},
+    borders: {}
+  };
+
+  // Analyze background colors
+  const bgColors = Array.from(styleData.backgroundColors);
+  const darkBgs = bgColors.filter(c => isDarkColor(c));
+  const lightBgs = bgColors.filter(c => !isDarkColor(c));
+  
+  if (darkBgs.length > 0) {
+    tokens.backgrounds.dark = getMostFrequent(darkBgs);
+    tokens.backgrounds['dark-alt'] = darkBgs[1] || darkBgs[0];
+  }
+  
+  if (lightBgs.length > 0) {
+    tokens.backgrounds.light = getMostFrequent(lightBgs);
+    tokens.backgrounds['light-alt'] = lightBgs[1] || lightBgs[0];
+  }
+
+  // Analyze text colors
+  const textColors = Array.from(styleData.textColors);
+  const darkText = textColors.filter(c => isDarkColor(c));
+  const lightText = textColors.filter(c => !isDarkColor(c));
+  
+  if (darkText.length > 0) {
+    tokens.text.primary = getMostFrequent(darkText);
+    tokens.text.secondary = darkText[1] || darkText[0];
+  }
+  
+  if (lightText.length > 0) {
+    tokens.text.light = getMostFrequent(lightText);
+  }
+
+  // Identify accent colors (vibrant colors used less frequently)
+  const allColors = Array.from(styleData.colors);
+  const accentColors = allColors.filter(c => isVibranthColor(c));
+  
+  if (accentColors.length > 0) {
+    // Categorize by hue
+    const orangeRed = accentColors.filter(c => c.includes('255') && (c.includes('88') || c.includes('74')));
+    const blues = accentColors.filter(c => c.includes('106') && c.includes('196'));
+    const purples = accentColors.filter(c => c.includes('184') || c.includes('172'));
+    const yellows = accentColors.filter(c => c.includes('241') && c.includes('189'));
+    
+    if (orangeRed.length > 0) tokens.accents.primary = orangeRed[0];
+    if (blues.length > 0) tokens.accents.secondary = blues[0];
+    if (purples.length > 0) tokens.accents.tertiary = purples[0];
+    if (yellows.length > 0) tokens.accents.warning = yellows[0];
+  }
+
+  // Border colors
+  const borderColors = Array.from(styleData.borderColors);
+  if (borderColors.length > 0) {
+    tokens.borders.default = getMostFrequent(borderColors);
+  }
+
+  return tokens;
+}
+
+/**
+ * Check if a color is dark
+ */
+function isDarkColor(color) {
+  // Extract RGB values
+  const rgbMatch = color.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+  if (rgbMatch) {
+    const [, r, g, b] = rgbMatch.map(Number);
+    const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+    return brightness < 128;
+  }
+  
+  // Handle hex colors
+  if (color.startsWith('#')) {
+    const hex = color.replace('#', '');
+    const r = parseInt(hex.substr(0, 2), 16);
+    const g = parseInt(hex.substr(2, 2), 16);
+    const b = parseInt(hex.substr(4, 2), 16);
+    const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+    return brightness < 128;
+  }
+  
+  return false;
+}
+
+/**
+ * Check if a color is vibrant (high saturation)
+ */
+function isVibrantColor(color) {
+  const rgbMatch = color.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+  if (rgbMatch) {
+    const [, r, g, b] = rgbMatch.map(Number);
+    const max = Math.max(r, g, b);
+    const min = Math.min(r, g, b);
+    const saturation = max === 0 ? 0 : (max - min) / max;
+    return saturation > 0.3; // Consider colors with >30% saturation as vibrant
+  }
+  return false;
+}
+
+/**
+ * Get most frequent color from array
+ */
+function getMostFrequent(colors) {
+  if (colors.length === 0) return null;
+  const frequency = {};
+  colors.forEach(color => {
+    frequency[color] = (frequency[color] || 0) + 1;
+  });
+  return Object.entries(frequency)
+    .sort((a, b) => b[1] - a[1])[0][0];
 }
 
 /**

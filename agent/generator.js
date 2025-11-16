@@ -25,6 +25,9 @@ export async function generateReactApp(components, crawlData) {
   // Setup app structure
   await setupAppStructure();
 
+  // Extract design tokens from first page for global config
+  const designTokens = crawlData[0]?.parsedCSS?.designTokens || null;
+
   // Generate components
   console.log(chalk.blue(`   📦 Generating ${components.length} components...`));
   await generateComponents(components, crawlData);
@@ -33,8 +36,8 @@ export async function generateReactApp(components, crawlData) {
   console.log(chalk.blue(`   📄 Generating ${crawlData.length} pages...`));
   await generatePages(crawlData, components);
 
-  // Generate supporting files
-  await generateSupportingFiles();
+  // Generate supporting files with design tokens
+  await generateSupportingFiles(designTokens);
 
   console.log(chalk.green('   ✓ Application structure complete'));
 }
@@ -263,7 +266,7 @@ function getPageFilename(pagePath, pageTitle) {
 /**
  * Generate supporting files (package.json, config files, etc.)
  */
-async function generateSupportingFiles() {
+async function generateSupportingFiles(designTokens = null) {
   // Generate package.json
   await generatePackageJson();
 
@@ -273,8 +276,8 @@ async function generateSupportingFiles() {
   // Generate tsconfig.node.json
   await generateTsConfigNode();
 
-  // Generate tailwind.config.js
-  await generateTailwindConfig();
+  // Generate tailwind.config.js with extracted colors
+  await generateTailwindConfig(designTokens);
 
   // Generate postcss.config.js
   await generatePostCSSConfig();
@@ -384,9 +387,56 @@ async function generateTsConfigNode() {
 }
 
 /**
- * Generate tailwind.config.js
+ * Generate tailwind.config.js with extracted design tokens
  */
-async function generateTailwindConfig() {
+async function generateTailwindConfig(designTokens = null) {
+  let colorConfig = `        asana: {
+          orange: '#f06a6a',
+          blue: '#14aaf5',
+          purple: '#6568f7',
+          green: '#7bc86c',
+          pink: '#f283b6',
+        }`;
+
+  // Use extracted design tokens if available
+  if (designTokens) {
+    const colors = [];
+    
+    // Add background colors
+    if (designTokens.backgrounds) {
+      if (designTokens.backgrounds.dark) colors.push(`          'bg-dark': '${designTokens.backgrounds.dark}'`);
+      if (designTokens.backgrounds['dark-alt']) colors.push(`          'bg-dark-alt': '${designTokens.backgrounds['dark-alt']}'`);
+      if (designTokens.backgrounds.light) colors.push(`          'bg-light': '${designTokens.backgrounds.light}'`);
+      if (designTokens.backgrounds['light-alt']) colors.push(`          'bg-light-alt': '${designTokens.backgrounds['light-alt']}'`);
+    }
+    
+    // Add text colors
+    if (designTokens.text) {
+      if (designTokens.text.primary) colors.push(`          'text-primary': '${designTokens.text.primary}'`);
+      if (designTokens.text.secondary) colors.push(`          'text-secondary': '${designTokens.text.secondary}'`);
+      if (designTokens.text.light) colors.push(`          'text-light': '${designTokens.text.light}'`);
+    }
+    
+    // Add accent colors
+    if (designTokens.accents) {
+      if (designTokens.accents.primary) colors.push(`          'accent-primary': '${designTokens.accents.primary}'`);
+      if (designTokens.accents.secondary) colors.push(`          'accent-secondary': '${designTokens.accents.secondary}'`);
+      if (designTokens.accents.tertiary) colors.push(`          'accent-tertiary': '${designTokens.accents.tertiary}'`);
+      if (designTokens.accents.warning) colors.push(`          'accent-warning': '${designTokens.accents.warning}'`);
+    }
+    
+    // Add border colors
+    if (designTokens.borders && designTokens.borders.default) {
+      colors.push(`          'border-default': '${designTokens.borders.default}'`);
+    }
+    
+    if (colors.length > 0) {
+      colorConfig = `        app: {
+${colors.join(',\n')}
+        }`;
+    }
+  }
+
   const config = `/** @type {import('tailwindcss').Config} */
 export default {
   content: [
@@ -396,13 +446,7 @@ export default {
   theme: {
     extend: {
       colors: {
-        asana: {
-          orange: '#f06a6a',
-          blue: '#14aaf5',
-          purple: '#6568f7',
-          green: '#7bc86c',
-          pink: '#f283b6',
-        }
+${colorConfig}
       }
     },
   },
