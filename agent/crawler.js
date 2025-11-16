@@ -310,6 +310,16 @@ async function crawlPage(page, pagePath, index) {
   console.log(chalk.gray(`      ⏳ Waiting for dynamic content...`));
   await page.waitForTimeout(PAGE_LOAD_WAIT);
   
+  // Wait specifically for common sidebar patterns to load
+  try {
+    await page.waitForSelector('aside, [class*="sidebar"], [class*="Sidebar"], [class*="Navigation"], nav[class*="navigation"]', { 
+      timeout: 5000 
+    });
+    console.log(chalk.gray('      ✓ Sidebar detected in DOM'));
+  } catch (e) {
+    console.log(chalk.yellow('      ⚠ No sidebar element detected'));
+  }
+  
   // Scroll to load lazy-loaded content
   await page.evaluate(() => {
     window.scrollTo(0, document.body.scrollHeight / 2);

@@ -264,6 +264,18 @@ export async function generatePage(pageData, components, prompt, screenshotPath)
         role: 'system',
         content: `You are a WORLD-CLASS React developer who creates PIXEL-PERFECT PAGES with FULL FUNCTIONALITY.
 
+⛔⛔⛔ ABSOLUTE REQUIREMENT - NO EXCEPTIONS ⛔⛔⛔
+EVERY PAGE YOU GENERATE MUST HAVE:
+✓ useState imported and used
+✓ State variables defined (tasks, projects, items, etc.)
+✓ Add/Delete/Toggle functions defined
+✓ onClick handlers on ALL buttons
+✓ onChange handlers on ALL checkboxes
+✓ .map() to render lists - NEVER hardcode tasks[0], tasks[1]
+
+IF YOU GENERATE A STATIC PAGE WITHOUT STATE MANAGEMENT, YOU HAVE FAILED!
+⛔⛔⛔⛔⛔⛔⛔⛔⛔⛔⛔⛔⛔⛔⛔⛔⛔⛔⛔⛔⛔⛔⛔⛔⛔⛔⛔⛔⛔
+
 🎯 DUAL MISSION (BOTH EQUALLY CRITICAL):
 1. PIXEL-PERFECT layout - exact colors, spacing, typography from screenshot
 2. FULLY WORKING page - all buttons, forms, CRUD operations MUST function
@@ -414,19 +426,29 @@ STEP 4 - UI CONNECTIONS:
 
 Generate TypeScript page with PERFECT VISUALS + FULL FUNCTIONALITY.
 
-5. DYNAMIC RENDERING:
-   Filter and display tasks by section:
+5. DYNAMIC RENDERING (MANDATORY - NO HARDCODED TASKS):
+   ⚠️ NEVER render tasks[0], tasks[1] directly - ALWAYS use .map()
+   
+   Filter by section and map over ALL tasks:
    {tasks.filter(t => t.section === 'todo').map(task => (
-     <div key={task.id}>
-       <input 
-         type="checkbox" 
-         checked={task.completed}
-         onChange={() => toggleTask(task.id)}
-       />
-       <span>{task.title}</span>
-       <button onClick={() => deleteTask(task.id)}>Delete</button>
+     <div key={task.id} className="flex items-center justify-between bg-white p-4 rounded shadow mb-2">
+       <div className="flex items-center">
+         <input 
+           type="checkbox" 
+           checked={task.completed}
+           onChange={() => toggleTask(task.id)}
+           className="mr-2"
+         />
+         <span className="text-[rgb(30,31,33)]">{task.title}</span>
+       </div>
+       <button onClick={() => deleteTask(task.id)} className="text-[rgb(255,88,74)]">
+         Delete
+       </button>
      </div>
    ))}
+   
+   ⚠️ If you see checkboxes in screenshot - make them FUNCTIONAL
+   ⚠️ If you see \"Create task\" button - add onClick to open modal or add task directly
 
 6. MODAL IMPLEMENTATION (IF APPLICABLE):
    {showModal && (
@@ -530,7 +552,47 @@ Generate clean TypeScript React code with proper component imports.`
     });
 
     const code = completion.choices[0].message.content;
-    return extractCodeFromResponse(code);
+    const extractedCode = extractCodeFromResponse(code);
+    
+    // 🔴 VALIDATION: Check if page has required functionality
+    const hasUseState = extractedCode.includes('useState');
+    const hasStateVariable = extractedCode.match(/const\s+\[(tasks|projects|items|data)/);
+    const hasCRUDFunction = extractedCode.includes('const add') || 
+                           extractedCode.includes('const delete') || 
+                           extractedCode.includes('const toggle');
+    const hasOnClick = extractedCode.includes('onClick');
+    const hasMapRendering = extractedCode.includes('.map(');
+    
+    if (!hasUseState || !hasStateVariable || !hasCRUDFunction || !hasOnClick || !hasMapRendering) {
+      console.log(chalk.red(`   ⚠️ VALIDATION FAILED - Page missing functionality!`));
+      console.log(chalk.yellow(`      useState: ${hasUseState ? '✓' : '✗'}`));
+      console.log(chalk.yellow(`      State variable: ${hasStateVariable ? '✓' : '✗'}`));
+      console.log(chalk.yellow(`      CRUD functions: ${hasCRUDFunction ? '✓' : '✗'}`));
+      console.log(chalk.yellow(`      onClick handlers: ${hasOnClick ? '✓' : '✗'}`));
+      console.log(chalk.yellow(`      .map() rendering: ${hasMapRendering ? '✓' : '✗'}`));
+      console.log(chalk.cyan(`   🔄 Regenerating with stricter requirements...`));
+      
+      // Add explicit requirement to the prompt
+      const enhancedMessages = [
+        {
+          role: 'system',
+          content: messages[0].content + '\n\n🚨 PREVIOUS ATTEMPT FAILED - DID NOT INCLUDE FUNCTIONALITY! 🚨\nYou MUST include useState, state variables, CRUD functions, onClick handlers, and .map() rendering!'
+        },
+        messages[1]
+      ];
+      
+      const retryCompletion = await client.chat.completions.create({
+        model: modelToUse,
+        temperature: 0.2, // Lower temperature for more deterministic output
+        max_tokens: MAX_TOKENS,
+        messages: enhancedMessages
+      });
+      
+      return extractCodeFromResponse(retryCompletion.choices[0].message.content);
+    }
+    
+    console.log(chalk.green(`   ✓ Validation passed - page has functionality`));
+    return extractedCode;
 
   } catch (error) {
     console.error(chalk.red(`   ✗ Failed to generate page: ${error.message}`));

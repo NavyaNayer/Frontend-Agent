@@ -102,14 +102,42 @@ function detectComponent(node, path) {
     };
   }
 
-  // Sidebar detection
-  if (tag === 'aside' || classStr.includes('sidebar') || classStr.includes('nav')) {
+  // Sidebar detection (enhanced for Asana and common patterns)
+  if (tag === 'aside' || 
+      classStr.includes('sidebar') || 
+      classStr.includes('sidenav') ||
+      classStr.includes('navigation') ||
+      classStr.includes('drawer') ||
+      classStr.includes('leftpanel') ||
+      classStr.includes('left-panel') ||
+      classStr.match(/nav.*panel|panel.*nav/)) {
     return {
       name: 'Sidebar',
       type: 'sidebar',
       selector: id ? `#${id}` : `.${classes[0] || 'sidebar'}`,
       children: children || []
     };
+  }
+  
+  // Special case: Detect sidebar by structure (narrow vertical container with navigation items)
+  if (tag === 'div' && children && children.length > 0) {
+    const hasNavItems = children.some(child => 
+      child.tag === 'nav' || 
+      child.tag === 'ul' ||
+      (child.classes && child.classes.some(c => c.toLowerCase().includes('nav')))
+    );
+    const looksLikeSidebar = classStr.includes('left') || 
+                             classStr.includes('side') || 
+                             classStr.match(/w-\d+|width/); // Has width constraint
+    
+    if (hasNavItems && looksLikeSidebar) {
+      return {
+        name: 'Sidebar',
+        type: 'sidebar',
+        selector: id ? `#${id}` : `.${classes[0] || 'sidebar'}`,
+        children: children || []
+      };
+    }
   }
 
   // Main content area
