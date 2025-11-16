@@ -1,0 +1,42 @@
+{
+  "name": "clooney-agent",
+  "version": "1.0.0",
+  "description": "AI-powered agent for replicating frontend applications from live websites",
+  "main": "agent/run.js",
+  "type": "module",
+  "scripts": {
+    "crawl": "node agent/run.js",
+    "generate": "node agent/regenerate.js",
+    "test:visual": "playwright test tests/visual.spec.ts",
+    "test:css": "playwright test tests/css-assertions.spec.ts",
+    "test:fidelity": "playwright test tests/fidelity.spec.ts",
+    "test": "playwright test",
+    "install:browsers": "playwright install chromium",
+    "setup": "npm install && npm run install:browsers"
+  },
+  "keywords": [
+    "agent",
+    "web-crawler",
+    "ai",
+    "frontend-replication",
+    "react",
+    "tailwind"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^1.6.2",
+    "chalk": "^5.3.0",
+    "dotenv": "^16.3.1",
+    "fs-extra": "^11.2.0",
+    "jsdom": "^23.0.0",
+    "openai": "^4.20.0",
+    "playwright": "^1.40.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.40.0",
+    "@types/node": "^20.19.25",
+    "pixelmatch": "^5.3.0",
+    "pngjs": "^7.0.0"
+  }
+}

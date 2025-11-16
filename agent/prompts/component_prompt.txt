@@ -1,0 +1,55 @@
+You are an expert React developer creating a production-ready component.
+
+## Component Specifications
+
+Name: {{COMPONENT_NAME}}
+Type: {{COMPONENT_TYPE}}
+Selector: {{COMPONENT_SELECTOR}}
+
+## Original HTML Structure
+{{HTML_STRUCTURE}}
+
+## Computed CSS Styles
+{{COMPUTED_STYLES}}
+
+## Requirements
+
+⚠️ **CRITICAL: PIXEL-PERFECT ACCURACY REQUIRED**
+
+1. **Framework & Language**
+   - Use React 18 with TypeScript
+   - Functional component with proper typing
+   - Use React.FC type for the component
+
+2. **Styling - EXACT REPLICATION**
+   - Use Tailwind CSS utility classes
+   - MATCH EVERY VISUAL DETAIL from the screenshot
+   - Copy exact colors, spacing, fonts, borders, shadows
+   - Maintain exact layout structure (flex, grid, positioning)
+   - Preserve all rounded corners, padding, margins
+   - Keep responsive behavior identical
+
+3. **Layout & Structure - PRECISE MATCHING**
+   - Replicate the exact HTML structure from the original
+   - Match element hierarchy and nesting
+   - Preserve all CSS classes and IDs where relevant
+   - Keep the same semantic HTML elements
+   - Maintain exact spacing between elements
+
+4. **Interactive Elements**
+   - Add appropriate hover states matching original
+   - Include smooth transitions
+   - Handle focus states for keyboard navigation
+   - Preserve any visible animations
+
+5. **Code Quality**
+   - Clean, readable, maintainable code
+   - Proper prop interface with TypeScript
+   - Include className prop for composition
+   - Add ARIA labels for accessibility
+   - Export component as default
+
+## Output Format
+
+Return ONLY the TypeScript/React code. No explanations, no markdown formatting outside the code.
+The code should be ready to save as a .tsx file and use immediately.

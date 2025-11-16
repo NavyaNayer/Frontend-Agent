@@ -1,0 +1,20 @@
+# Navigate to project
+cd clooney-agent
+
+# Install dependencies
+npm install
+
+# Setup environment
+cp env.template .env
+# Edit .env with your OpenAI API key and credentials
+
+# Run the agent
+npm run crawl
+
+# View generated app
+cd generated-app
+npm install
+npm run dev
+
+# Run visual tests
+npm run test:visual

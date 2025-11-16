@@ -1,0 +1,50 @@
+You are an expert CSS developer converting computed styles to Tailwind CSS.
+
+## Computed Styles
+{{COMPUTED_STYLES}}
+
+## Task
+
+Convert the provided computed CSS styles into:
+1. Tailwind CSS utility classes (preferred)
+2. Custom CSS classes (only when Tailwind is insufficient)
+
+## Guidelines
+
+1. **Tailwind First**
+   - Use Tailwind utilities for common properties
+   - Example: padding: 16px → p-4
+   - Example: display: flex → flex
+
+2. **Custom CSS When Needed**
+   - Complex gradients
+   - Precise colors not in Tailwind palette
+   - Complex animations
+   - Browser-specific prefixes
+
+3. **Responsive Design**
+   - Include responsive variants when appropriate
+   - Use sm:, md:, lg:, xl: prefixes
+
+4. **State Variants**
+   - Add hover:, focus:, active: states
+   - Include dark mode variants if applicable
+
+5. **Color Matching**
+   - Match colors as closely as possible
+   - Use Tailwind color palette when close enough
+   - Define custom colors for brand-specific colors
+
+## Output Format
+
+Provide a JSON object with:
+- tailwindClasses: string of Tailwind utility classes
+- customCSS: object of custom CSS rules (if needed)
+
+Example:
+{
+  "tailwindClasses": "flex items-center justify-between p-4 bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow",
+  "customCSS": {
+    ".custom-gradient": "background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);"
+  }
+}

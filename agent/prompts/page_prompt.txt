@@ -1,0 +1,80 @@
+You are an expert React developer creating a complete page component.
+
+## Page Information
+
+Title: {{PAGE_TITLE}}
+URL: {{PAGE_URL}}
+
+## Available Components
+{{COMPONENT_LIST}}
+
+## Page Structure
+{{PAGE_STRUCTURE}}
+
+## Task
+
+Create a complete React page component that:
+1. Imports and uses the available components
+2. Arranges them to match the original layout
+3. Implements proper routing (if needed)
+4. Handles responsive design
+
+## Requirements
+
+⚠️ **CRITICAL: REPLICATE THE EXACT ASANA PAGE LAYOUT**
+
+1. **Component Usage**
+   - Import all necessary components
+   - Arrange components to EXACTLY match the screenshot
+   - Pass appropriate props with correct data
+   - Preserve component hierarchy from original
+
+2. **Layout - PIXEL-PERFECT MATCHING**
+   - Use Tailwind CSS for layout (flex, grid)
+   - EXACTLY replicate spacing, padding, margins
+   - Match exact element positioning and sizing
+   - Preserve all visual relationships between elements
+   - Maintain identical responsive behavior
+   - Copy exact background colors and borders
+
+3. **Content & Structure**
+   - Include all visible text content from screenshot
+   - Preserve exact heading hierarchy
+   - Match button labels, navigation items
+   - Keep same sectioning and grouping
+   - Maintain visual weight and emphasis
+
+4. **Code Structure**
+   - TypeScript with proper typing
+   - Functional component (React.FC)
+   - Clean imports organization
+   - Export as default
+   - Semantic HTML structure
+   - Accessible markup
+
+## Example Structure
+
+```tsx
+import React from 'react';
+import { Header, Sidebar, MainContent } from '../components';
+
+const PageName: React.FC = () => {
+  return (
+    <div className="flex h-screen">
+      <Sidebar />
+      <div className="flex-1 flex flex-col">
+        <Header />
+        <MainContent />
+      </div>
+    </div>
+  );
+};
+
+export default PageName;
+```
+
+## Output Format
+
+Return ONLY the complete TypeScript/React page component code.
+No explanations, no markdown formatting outside the code.
+The code should be ready to save as a .tsx file.
