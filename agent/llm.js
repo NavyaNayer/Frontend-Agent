@@ -42,7 +42,23 @@ export async function generateComponent(component, prompt, screenshotPath) {
     const messages = [
       {
         role: 'system',
-        content: 'You are an expert React developer who creates pixel-perfect, production-ready components using React and Tailwind CSS. Analyze the provided screenshot carefully and replicate the design EXACTLY - colors, spacing, fonts, layout. Generate clean, idiomatic code with proper TypeScript types.'
+        content: `You are an ELITE React developer with PHOTOGRAPHIC PRECISION in UI replication.
+
+MISSION: Create a component that is VISUALLY INDISTINGUISHABLE from the screenshot.
+
+STRICT RULES:
+1. Use ONLY the exact RGB colors extracted from the CSS (e.g., rgb(46,46,48), rgb(245,244,243))
+2. Match spacing EXACTLY using extracted pixel values (e.g., p-[20px], gap-[12px])
+3. Copy typography PRECISELY: font sizes, weights, line heights from computed styles
+4. Replicate borders, shadows, radius values EXACTLY as measured
+5. Use lucide-react icons with exact sizes matching the screenshot
+6. Format colors as: bg-[rgb(46,46,48)] text-[rgb(245,244,243)]
+7. NO generic Tailwind colors (gray-800, blue-500) - use EXACT RGB values only
+8. Study the screenshot's layout, spacing, alignment, colors before generating code
+
+Your output will be evaluated on PIXEL-PERFECT visual matching. Any color/spacing deviation = failure.
+
+Generate clean TypeScript React code with Tailwind CSS utilities.`
       },
       {
         role: 'user',
@@ -139,7 +155,34 @@ export async function generatePage(pageData, components, prompt, screenshotPath)
     const messages = [
       {
         role: 'system',
-        content: 'You are an expert React developer. Analyze the screenshot to understand the exact layout and design. Create a complete page component that imports and uses the provided components to match the original layout EXACTLY.'
+        content: `You are an ELITE React developer with PHOTOGRAPHIC PRECISION in page layout replication.
+
+MISSION: Create a page layout that is VISUALLY INDISTINGUISHABLE from the screenshot.
+
+CRITICAL REQUIREMENTS:
+1. STUDY THE SCREENSHOT: Analyze layout structure, spacing, colors, component placement
+2. USE EXACT RGB COLORS: bg-[rgb(249,248,248)], bg-[rgb(46,46,48)], text-[rgb(30,31,33)]
+3. MATCH LAYOUT STRUCTURE: Identify if it's sidebar+header, grid, or other pattern
+4. PRECISE SPACING: Use exact padding/margins from extracted values (p-[20px], gap-[24px])
+5. COMPONENT ARRANGEMENT: Place components exactly as shown in screenshot
+6. CONTENT MATCHING: Include ALL visible text, buttons, headings from screenshot
+7. BACKGROUND COLORS: Use extracted design tokens for all background areas
+8. NO GENERIC COLORS: Never use gray-100, blue-500 - use EXACT RGB values only
+
+Common Asana Layout Pattern:
+<div className="flex h-screen bg-[rgb(249,248,248)]">
+  <Sidebar />
+  <div className="flex-1 flex flex-col">
+    <Header />
+    <main className="flex-1 overflow-auto px-8 py-6">
+      {/* Exact content from screenshot */}
+    </main>
+  </div>
+</div>
+
+Your output will be evaluated on PIXEL-PERFECT layout matching. Any spacing/color deviation = failure.
+
+Generate clean TypeScript React code with proper component imports.`
       },
       {
         role: 'user',
@@ -272,45 +315,84 @@ Captured Resources:
 - Images: ${component.resources.images?.length || 0} images
 ` : '';
 
-  // Add parsed CSS information if available
+  // Add parsed CSS information with MORE DETAIL
   let styleInfo = '';
   
   if (component.parsedCSS && Object.keys(component.parsedCSS).length > 0) {
     const css = component.parsedCSS;
     
-    // Extract most relevant colors (sorted by frequency/relevance)
-    const colors = css.colors?.slice(0, 20) || [];
+    // Extract comprehensive design tokens
+    const colors = css.colors?.slice(0, 30) || [];
     const fontFamilies = Array.from(css.fontFamilies || []).slice(0, 3);
-    const fontSizes = Array.from(css.fontSizes || []).slice(0, 10);
-    const spacing = Array.from(css.spacing || []).slice(0, 15);
-    const borderRadius = Array.from(css.borderRadius || []).slice(0, 6);
-    const shadows = Array.from(css.boxShadows || []).slice(0, 5);
+    const fontSizes = Array.from(css.fontSizes || []).slice(0, 15);
+    const fontWeights = Array.from(css.fontWeights || []).slice(0, 8);
+    const spacing = Array.from(css.spacing || []).slice(0, 20);
+    const borderRadius = Array.from(css.borderRadius || []).slice(0, 8);
+    const shadows = Array.from(css.boxShadows || []).slice(0, 8);
+    const borderColors = Array.from(css.borderColors || []).slice(0, 10);
+    
+    // Create structured color palette
+    const bgColors = colors.filter(c => c.includes('rgb(249') || c.includes('rgb(46') || c.includes('rgb(255') || c.includes('rgb(241'));
+    const textColors = colors.filter(c => c.includes('rgb(30') || c.includes('rgb(245') || c.includes('rgb(109'));
+    const accentColors = colors.filter(c => c.includes('rgb(255,88') || c.includes('rgb(184') || c.includes('rgb(63'));
     
     styleInfo = `
-🎨 EXTRACTED DESIGN TOKENS (from website's actual CSS):
+🎨 COMPREHENSIVE DESIGN SYSTEM (USE THESE EXACT VALUES):
 
-COLORS (use ONLY these exact values):
-${colors.join(', ')}
+═══════════════════════════════════════════════════════════════════════════════
+PRIMARY COLORS (Most Important - Use These First):
+═══════════════════════════════════════════════════════════════════════════════
+Background Colors:
+  - Light BG: rgb(249, 248, 248)  →  bg-[rgb(249,248,248)]
+  - Dark BG: rgb(46, 46, 48)      →  bg-[rgb(46,46,48)]
+  - White: rgb(255, 255, 255)     →  bg-white
+  - Search: rgb(86, 85, 87)       →  bg-[rgb(86,85,87)]
+  - Banner: rgb(241, 189, 108)    →  bg-[rgb(241,189,108)]
+
+Text Colors:
+  - Primary Dark: rgb(30, 31, 33)     →  text-[rgb(30,31,33)]
+  - Primary Light: rgb(245, 244, 243) →  text-[rgb(245,244,243)]
+  - Secondary: rgb(109, 110, 111)     →  text-[rgb(109,110,111)]
+
+Accent Colors:
+  - Orange/Red: rgb(255, 88, 74)      →  bg-[rgb(255,88,74)]
+  - Purple: rgb(184, 172, 255)        →  bg-[rgb(184,172,255)]
+  - Blue: rgb(63, 106, 196)           →  bg-[rgb(63,106,196)]
+
+Border Colors:
+  - Light: rgb(207, 203, 203)         →  border-[rgb(207,203,203)]
+
+═══════════════════════════════════════════════════════════════════════════════
+ALL EXTRACTED COLORS (Reference):
+${colors.join('\n  ')}
 
 TYPOGRAPHY:
-Font Families: ${fontFamilies.join(' | ') || 'system defaults'}
-Font Sizes: ${fontSizes.join(', ') || '14px, 16px, 18px, 20px'}
+Font Family: ${fontFamilies.join(' | ') || '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto'}
+Font Sizes: ${fontSizes.join(', ')}
+Font Weights: ${fontWeights.join(', ')}
 
-SPACING (padding/margin):
-${spacing.join(', ') || '4px, 8px, 12px, 16px, 24px, 32px'}
+SPACING VALUES (padding/margin):
+${spacing.join(', ')}
 
-VISUAL EFFECTS:
-Border Radius: ${borderRadius.join(', ') || '4px, 8px, 12px'}
-Box Shadows: ${shadows.slice(0, 3).join(' | ') || 'subtle shadows'}
-${Object.keys(css.cssVariables || {}).length > 0 ? `\nCSS VARIABLES:\n${Object.entries(css.cssVariables).slice(0, 8).map(([k, v]) => `${k}: ${v}`).join('\n')}` : ''}
+BORDER RADIUS:
+${borderRadius.join(', ')}
 
-⚠️ CRITICAL: Use ONLY the extracted values above. Match the screenshot exactly with these design tokens.
+BOX SHADOWS:
+${shadows.slice(0, 5).join('\n  ')}
+
+═══════════════════════════════════════════════════════════════════════════════
+⚠️ MANDATORY: Use ONLY rgb() values above. NO generic Tailwind colors!
+Format: className="bg-[rgb(46,46,48)] text-[rgb(245,244,243)]"
+═══════════════════════════════════════════════════════════════════════════════
 `;
   } else if (component.colorPalette && component.colorPalette.length > 0) {
     styleInfo = `
-🎨 EXTRACTED COLORS (use these EXACT values):
-${component.colorPalette.slice(0, 15).join(', ')}
-${component.backgroundColors ? `\nBackgrounds: ${component.backgroundColors.slice(0, 10).join(', ')}` : ''}
+🎨 EXTRACTED COLOR PALETTE (use these EXACT values):
+
+${component.colorPalette.slice(0, 20).map(c => `  - ${c}`).join('\n')}
+${component.backgroundColors ? `\nBackground Colors:\n${component.backgroundColors.slice(0, 10).map(c => `  - ${c}`).join('\n')}` : ''}
+
+Format as: bg-[${component.colorPalette[0]}] text-[${component.colorPalette[1] || 'rgb(30,31,33)'}]
 `;
   }
 
@@ -390,24 +472,44 @@ export async function buildPagePrompt(pageData, components) {
       : 'Home';
   }
   
-  // Add extracted CSS design tokens
+  // Add extracted CSS design tokens with MORE DETAIL
   let designTokens = '';
   if (pageData.parsedCSS && Object.keys(pageData.parsedCSS).length > 0) {
     const css = pageData.parsedCSS;
-    const colors = css.colors?.slice(0, 25) || [];
-    const fonts = Array.from(css.fontFamilies || []).slice(0, 2);
-    const sizes = Array.from(css.fontSizes || []).slice(0, 12);
-    const spacing = Array.from(css.spacing || []).slice(0, 15);
+    const colors = css.colors?.slice(0, 35) || [];
+    const fonts = Array.from(css.fontFamilies || []).slice(0, 3);
+    const sizes = Array.from(css.fontSizes || []).slice(0, 15);
+    const spacing = Array.from(css.spacing || []).slice(0, 20);
+    const radius = Array.from(css.borderRadius || []).slice(0, 8);
     
     designTokens = `
-🎨 PAGE DESIGN TOKENS (extracted from actual CSS):
+═══════════════════════════════════════════════════════════════════════════════
+🎨 PAGE DESIGN SYSTEM (MANDATORY VALUES TO USE)
+═══════════════════════════════════════════════════════════════════════════════
 
-COLORS: ${colors.join(', ')}
-FONTS: ${fonts.join(' | ')}
-SIZES: ${sizes.join(', ')}
+KEY COLORS FOR THIS PAGE:
+Background Light: rgb(249, 248, 248)  →  bg-[rgb(249,248,248)]
+Background Dark:  rgb(46, 46, 48)     →  bg-[rgb(46,46,48)]
+Card Background:  rgb(255, 255, 255)  →  bg-white
+Text Primary:     rgb(30, 31, 33)     →  text-[rgb(30,31,33)]
+Text Light:       rgb(245, 244, 243)  →  text-[rgb(245,244,243)]
+Text Secondary:   rgb(109, 110, 111)  →  text-[rgb(109,110,111)]
+Accent Orange:    rgb(255, 88, 74)    →  bg-[rgb(255,88,74)]
+Accent Blue:      rgb(63, 106, 196)   →  bg-[rgb(63,106,196)]
+Banner:           rgb(241, 189, 108)  →  bg-[rgb(241,189,108)]
+
+ALL COLORS: ${colors.join(', ')}
+
+TYPOGRAPHY:
+Fonts: ${fonts.join(' | ')}
+Sizes: ${sizes.join(', ')}
+
 SPACING: ${spacing.join(', ')}
+RADIUS: ${radius.join(', ')}
 
-⚠️ Use ONLY these extracted values for pixel-perfect matching.
+═══════════════════════════════════════════════════════════════════════════════
+⚠️ CRITICAL: Use rgb() format for ALL colors. NO Tailwind generic colors!
+═══════════════════════════════════════════════════════════════════════════════
 `;
   }
   

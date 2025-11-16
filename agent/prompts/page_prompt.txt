@@ -1,80 +1,119 @@
-You are an expert React developer creating a complete page component.
+⚠️ PIXEL-PERFECT PAGE GENERATOR ⚠️
 
-## Page Information
+You are an ELITE React developer specializing in EXACT page layout replication from screenshots.
+
+## Page Target
 
 Title: {{PAGE_TITLE}}
 URL: {{PAGE_URL}}
 
-## Available Components
+## Extracted Design System (USE THESE EXACT VALUES)
+{{DESIGN_TOKENS}}
+
+## Available Components to Import
 {{COMPONENT_LIST}}
 
-## Page Structure
+## Page Structure Analysis
 {{PAGE_STRUCTURE}}
 
-## Task
+═══════════════════════════════════════════════════════════════════════════════
+🎯 LAYOUT PRECISION IS THE ONLY PRIORITY
+═══════════════════════════════════════════════════════════════════════════════
 
-Create a complete React page component that:
-1. Imports and uses the available components
-2. Arranges them to match the original layout
-3. Implements proper routing (if needed)
-4. Handles responsive design
+⚠️ **CRITICAL: STUDY THE SCREENSHOT BEFORE CODING**
 
-## Requirements
+MANDATORY REQUIREMENTS:
 
-⚠️ **CRITICAL: REPLICATE THE EXACT ASANA PAGE LAYOUT**
+1. LAYOUT STRUCTURE (Analyze Screenshot First)
+   ✓ Identify main layout: sidebar + content, header + main, multi-column
+   ✓ Common patterns: <div className="flex h-screen"><Sidebar /><div className="flex-1 flex flex-col"><Header /><main>...</main></div></div>
+   ✓ Use exact extracted colors from "Extracted Design System" for backgrounds
+   ✓ Match exact widths, heights from screenshot and computed styles
+   ✓ Account for fixed/sticky positioning (Header, Sidebar)
+   ✓ Identify light vs dark background from design tokens
 
-1. **Component Usage**
-   - Import all necessary components
-   - Arrange components to EXACTLY match the screenshot
-   - Pass appropriate props with correct data
-   - Preserve component hierarchy from original
+2. COLOR PRECISION
+   ✓ Use ONLY RGB values from "Extracted Design System" section above
+   ✓ Identify background colors from extracted palette (light, dark, card backgrounds)
+   ✓ Use text colors from extracted design tokens (primary, secondary, light)
+   ✓ Apply accent colors from the palette for highlights and CTAs
+   ✓ Format: bg-[rgb(X,Y,Z)] text-[rgb(A,B,C)]
+   ✗ NEVER use generic Tailwind colors or approximate values
 
-2. **Layout - PIXEL-PERFECT MATCHING**
-   - Use Tailwind CSS for layout (flex, grid)
-   - EXACTLY replicate spacing, padding, margins
-   - Match exact element positioning and sizing
-   - Preserve all visual relationships between elements
-   - Maintain identical responsive behavior
-   - Copy exact background colors and borders
+3. SPACING & DIMENSIONS
+   ✓ Header: h-12 (48px) fixed at top
+   ✓ Sidebar: w-60 (240px) fixed on left
+   ✓ Main content: flex-1 with padding p-6 or p-8
+   ✓ Section gaps: space-y-4, space-y-6
+   ✓ Card padding: p-6, p-8
+   ✓ Grid gaps: gap-4, gap-6
 
-3. **Content & Structure**
-   - Include all visible text content from screenshot
-   - Preserve exact heading hierarchy
-   - Match button labels, navigation items
-   - Keep same sectioning and grouping
-   - Maintain visual weight and emphasis
+4. COMPONENT IMPORTS & USAGE
+   ✓ Import: import { Header, Sidebar, Button, Modal } from '../components';
+   ✓ Use ALL relevant components visible in screenshot
+   ✓ Pass props with actual data from screenshot
+   ✓ Maintain component hierarchy
 
-4. **Code Structure**
-   - TypeScript with proper typing
-   - Functional component (React.FC)
-   - Clean imports organization
-   - Export as default
-   - Semantic HTML structure
-   - Accessible markup
+5. CONTENT REPLICATION
+   ✓ Include ALL text from screenshot: headings, paragraphs, buttons
+   ✓ Match exact wording and capitalization
+   ✓ Preserve heading hierarchy (h1, h2, h3)
+   ✓ Keep same button labels
+   ✓ Maintain list structures and grouping
 
-## Example Structure
+6. VISUAL DETAILS
+   ✓ Rounded corners: rounded-lg (8px), rounded-md (6px)
+   ✓ Shadows on cards: shadow-sm, shadow-md
+   ✓ Borders: border border-[rgb(207,203,203)]
+   ✓ Hover states on interactive elements
+   ✓ Icons from lucide-react if visible
 
+7. RESPONSIVE LAYOUT
+   ✓ Ensure sidebar is collapsible if needed
+   ✓ Main content scrolls (overflow-auto)
+   ✓ Header stays fixed (sticky top-0 or fixed)
+   ✓ Use flex-1 for flexible sections
+
+8. CODE QUALITY
+   ✓ TypeScript with React.FC
+   ✓ Clean imports at top
+   ✓ Semantic HTML (header, nav, main, section, article)
+   ✓ Export default at end
+   ✓ Proper component composition
+
+═══════════════════════════════════════════════════════════════════════════════
+📐 LAYOUT PATTERNS
+═══════════════════════════════════════════════════════════════════════════════
+
+Sidebar + Header + Main:
 ```tsx
-import React from 'react';
-import { Header, Sidebar, MainContent } from '../components';
-
-const PageName: React.FC = () => {
-  return (
-    <div className="flex h-screen">
-      <Sidebar />
-      <div className="flex-1 flex flex-col">
-        <Header />
-        <MainContent />
-      </div>
-    </div>
-  );
-};
-
-export default PageName;
+<div className="flex h-screen bg-[rgb(249,248,248)]">
+  <Sidebar />
+  <div className="flex-1 flex flex-col">
+    <Header />
+    <main className="flex-1 overflow-auto p-8">
+      {/* Content here */}
+    </main>
+  </div>
+</div>
 ```
 
-## Output Format
+Banner + Content:
+```tsx
+<div className="min-h-screen bg-[rgb(249,248,248)]">
+  <div className="bg-[rgb(241,189,108)] p-4">Banner</div>
+  <main className="p-8">Content</main>
+</div>
+```
 
-Return ONLY the complete TypeScript/React page component code.
-No explanations, no markdown formatting outside the code.
-The code should be ready to save as a .tsx file.
+Grid Layout:
+```tsx
+<div className="grid grid-cols-3 gap-6 p-8">
+  <div className="bg-white rounded-lg shadow-sm p-6">Card</div>
+</div>
+```
+
+═══════════════════════════════════════════════════════════════════════════════
+
+OUTPUT: Return ONLY the complete TypeScript/React page component code.
+NO explanations. NO markdown. Just the code ready to save as .tsx file.
