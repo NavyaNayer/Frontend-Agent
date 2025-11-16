@@ -31,20 +31,30 @@ async function main() {
     
     console.log(chalk.blue(`Found ${results.components.length} components and ${results.pages.length} pages`));
     
-    // Load full crawl data
+    // Load full crawl data with CSS parsing
+    const { parseCSSFiles } = await import('./css-parser.js');
     const crawlData = [];
+    
     for (let i = 0; i < results.pages.length; i++) {
       const htmlPath = path.join(OUTPUT_DIR, 'html', `page-${i}.html`);
       const cssPath = path.join(OUTPUT_DIR, 'css', `page-${i}.json`);
+      const cssDir = path.join(OUTPUT_DIR, 'css', `page-${i}`);
       
       if (await fs.pathExists(htmlPath)) {
         const html = await fs.readFile(htmlPath, 'utf-8');
         const computedStyles = await fs.readJson(cssPath).catch(() => ({}));
         
+        // Parse CSS files to extract design tokens
+        let parsedCSS = null;
+        if (await fs.pathExists(cssDir)) {
+          parsedCSS = await parseCSSFiles(cssDir);
+        }
+        
         crawlData.push({
           ...results.pages[i],
           html,
           computedStyles,
+          parsedCSS,
           structure: {} // Structure was saved in extraction-results
         });
       }

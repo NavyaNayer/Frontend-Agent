@@ -87,6 +87,25 @@ MANDATORY REQUIREMENTS:
    ✓ Export default at end
    ✓ No hardcoded dimensions - use Tailwind
 
+10. FUNCTIONALITY & INTERACTIVITY (CRITICAL)
+   ✓ If component has buttons (Add, Delete, Edit, Create, etc.) - make them FULLY FUNCTIONAL
+   ✓ Use React useState for managing data/state
+   ✓ Implement actual CRUD operations:
+     - Add/Create: Add new items to state array
+     - Delete: Remove items from state using filter
+     - Edit: Update items in state using map
+     - Toggle: Change boolean states
+   ✓ For modals/dialogs: Implement open/close state with useState
+   ✓ For forms: Capture input values and handle submission
+   ✓ For lists: Allow adding/removing items dynamically
+   ✓ Show visual feedback: Disable buttons when needed, show loading states
+   ✓ Example patterns:
+     * Add button: onClick={() => setItems([...items, newItem])}
+     * Delete button: onClick={() => setItems(items.filter(i => i.id !== id))}
+     * Edit button: onClick={() => setItems(items.map(i => i.id === id ? updated : i))}
+     * Modal: const [isOpen, setIsOpen] = useState(false)
+   ✓ Make the component actually usable, not just visual
+
 ═══════════════════════════════════════════════════════════════════════════════
 📸 SCREENSHOT ANALYSIS CHECKLIST
 ═══════════════════════════════════════════════════════════════════════════════
