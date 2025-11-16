@@ -58,8 +58,9 @@ clooney-agent/
 ### Installation
 
 ```bash
-# Clone or create the project
-cd clooney-agent
+# Clone the repository
+git clone https://github.com/NavyaNayer/frontend-agent.git
+cd frontend-agent
 
 # Install dependencies
 npm install
@@ -354,26 +355,7 @@ Always respect:
 - **Styling:** Tailwind CSS
 - **Testing:** Playwright Test
 - **Runtime:** Node.js (ES Modules)
-
-## 🤝 Contributing
-
-Ideas for enhancement:
-- Support for other frameworks (Vue, Svelte)
-- Component variant detection
-- Animation extraction
-- State management generation
-- API endpoint discovery
-
-## 📝 License
-
-MIT
-
-## 🙏 Acknowledgments
-
-Inspired by the need for rapid prototyping and design system documentation.
-
 ---
 
-**Built with ❤️ by the Clooney Agent Team**
+**Built by Navya Nayer**
 
-Need help? Open an issue or check the troubleshooting guide above.
