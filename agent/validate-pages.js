@@ -62,6 +62,45 @@ async function validatePages() {
       issues.push('⚠️  Imports Header but doesn\'t use it');
     }
     
+    // Check for CRUD functionality
+    const hasButtons = content.includes('<button');
+    const hasCheckboxes = content.includes('type="checkbox"');
+    const hasInputs = content.includes('<input') && content.includes('type="text"');
+    
+    // Check for state management
+    const hasUseState = content.includes('useState');
+    const hasSetState = content.match(/set[A-Z][a-zA-Z]+/); // Matches setState functions
+    
+    if (hasButtons && !content.includes('onClick')) {
+      issues.push('❌ Has buttons but missing onClick handlers');
+    }
+    
+    if (hasCheckboxes && !content.includes('onChange')) {
+      issues.push('❌ Has checkboxes but missing onChange handlers');
+    }
+    
+    if (hasInputs && !content.includes('onChange')) {
+      issues.push('❌ Has input fields but missing onChange handlers');
+    }
+    
+    // Check for CRUD functions
+    const hasCRUDButtons = content.match(/Add|Create|Delete|Remove|Update|Edit/i);
+    if (hasCRUDButtons) {
+      const hasAddFunction = content.includes('addTask') || content.includes('addItem') || content.includes('onCreate');
+      const hasDeleteFunction = content.includes('deleteTask') || content.includes('deleteItem') || content.includes('onDelete');
+      const hasToggleFunction = content.includes('toggleTask') || content.includes('toggleItem') || content.includes('onToggle');
+      
+      if (!hasAddFunction && content.match(/Add|Create/i)) {
+        issues.push('❌ Has "Add" button but missing add function');
+      }
+      if (!hasDeleteFunction && content.match(/Delete|Remove/i)) {
+        issues.push('❌ Has "Delete" button but missing delete function');
+      }
+      if (hasCheckboxes && !hasToggleFunction) {
+        issues.push('❌ Has checkboxes but missing toggle function');
+      }
+    }
+    
     // Report
     if (issues.length === 0) {
       console.log(chalk.green(`✓ ${file}`));

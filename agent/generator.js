@@ -119,7 +119,7 @@ async function generateBaseComponents(componentsDir, crawlData, extractedCompone
       const screenshotPath = firstPage.screenshotPath?.viewport || firstPage.screenshotPath?.full;
       
       try {
-        const sidebarPrompt = buildSidebarPrompt(firstPage);
+        const sidebarPrompt = buildSidebarPrompt(firstPage, firstPage.sidebarInfo);
         const generatedCode = await generateComponent(
           { name: 'Sidebar', type: 'sidebar' },
           sidebarPrompt,
@@ -249,24 +249,168 @@ export default Sidebar;`
 /**
  * Build prompt for Sidebar generation
  */
-function buildSidebarPrompt(pageData) {
+function buildSidebarPrompt(pageData, sidebarInfo = null) {
   const colors = pageData.parsedCSS?.colors?.slice(0, 20) || [];
+  const isCollapsible = sidebarInfo?.isCollapsible || false;
   
-  return `Create a Sidebar navigation component based on the screenshot.
+  return `Create a Sidebar navigation component by analyzing the screenshot in extreme detail.
 
 EXTRACTED COLORS: ${colors.join(', ')}
 
-The Sidebar should:
-- Be positioned on the left side with fixed width (around 240-260px)
-- Use dark background color from extracted palette (typically rgb(46,46,48) or similar)
-- Include navigation items with icons (use lucide-react)
-- Have sections for: workspace selector, search, main navigation, starred, projects, teams
-- Include hover states with slightly lighter background
-- Use exact colors from the extracted palette above
+${isCollapsible ? '🔴 CRITICAL: This sidebar is COLLAPSIBLE - hamburger/menu icon detected!' : ''}
+${isCollapsible ? '✅ MUST implement useState toggle for collapse/expand functionality' : ''}
 
-Study the screenshot carefully and replicate the exact visual design.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🔍 CRITICAL ANALYSIS - EXAMINE SCREENSHOT CAREFULLY
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-Return only the complete TypeScript React component code.`;
+1. COLLAPSIBLE BEHAVIOR:
+   □ Is there a hamburger menu icon (☰)?
+   □ Is there a collapse/expand button/icon?
+   □ Is there a toggle arrow near the top?
+   □ Does the sidebar look narrow/collapsed in the screenshot?
+   
+   If YES → Add useState for collapsed state + toggle button
+   If NO → Fixed width sidebar
+
+2. NAVIGATION ITEMS - READ EACH ONE:
+   □ What are the EXACT labels? (Home, My Tasks, Inbox, etc.)
+   □ What icons are shown? (home, list, inbox icons?)
+   □ Which item appears selected/active? (different background?)
+   □ What are the href targets? (/home, /tasks, /inbox, /projects)
+   
+   ⚠️ IMPORTANT: Link each nav item to its correct route!
+   - Home → href="/"
+   - My Tasks → href="/tasks"
+   - Inbox → href="/inbox"
+   - Projects → href="/projects"
+   etc.
+
+3. SECTIONS & GROUPINGS:
+   □ Is there a workspace selector at top?
+   □ Is there a search bar?
+   □ Are nav items grouped in sections?
+   □ Section headers visible? (Projects, Starred, Teams, etc.)
+   □ Add buttons visible? (+ icons to add new items?)
+
+4. VISUAL DETAILS:
+   □ Exact width (200px? 240px? 260px?)
+   □ Background color (use extracted colors - typically dark)
+   □ Text color (light on dark background)
+   □ Selected item styling (lighter background? border?)
+   □ Hover effects (background changes?)
+   □ Dividers between sections?
+   □ Padding and spacing between items
+
+5. DYNAMIC CONTENT:
+   □ Project names shown? (extract from screenshot)
+   □ Team names shown?
+   □ User workspace name?
+   □ Notification counts/badges?
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+✅ REQUIREMENTS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🔴 CRITICAL: SIDEBAR POSITIONING
+   ❌ NEVER use position:fixed (causes overlap with main content)
+   ❌ <aside className="fixed left-0 top-0 h-full w-60">
+   
+   ✅ ALWAYS use flex-shrink-0 (takes space in layout)
+   ✅ <aside className="w-60 h-screen bg-[rgb(46,46,48)] flex-shrink-0">
+   
+   WHY: Sidebar must be part of flex layout, not positioned absolutely!
+   Parent page uses: <div className="flex h-screen"> with sidebar as first child
+
+1. COLLAPSIBLE FUNCTIONALITY (if applicable):
+   \`\`\`tsx
+   const [isCollapsed, setIsCollapsed] = useState(false);
+   
+   return (
+     <aside className={\`\${isCollapsed ? 'w-16' : 'w-60'} transition-all duration-300 h-screen bg-[rgb(46,46,48)] flex-shrink-0\`}>
+       <button onClick={() => setIsCollapsed(!isCollapsed)}>
+         {isCollapsed ? <Menu size={20} /> : <X size={20} />}
+       </button>
+       {!isCollapsed && <span>Navigation Label</span>}
+     </aside>
+   );
+   \`\`\`
+
+2. PROPER NAVIGATION LINKS (MANDATORY - ALL LINKS MUST WORK):
+   🔴 Use <a> tags with href, NOT buttons!
+   🔴 Map navigation items to actual routes:
+   
+   \`\`\`tsx
+   <nav className="space-y-1">
+     <a href="/" className="flex items-center gap-2 px-3 py-2 hover:bg-[rgb(60,60,62)] rounded transition-colors">
+       <Home size={18} />
+       <span className="text-sm">Home</span>
+     </a>
+     <a href="/tasks" className="flex items-center gap-2 px-3 py-2 hover:bg-[rgb(60,60,62)] rounded transition-colors">
+       <CheckSquare size={18} />
+       <span className="text-sm">My Tasks</span>
+     </a>
+     <a href="/inbox" className="flex items-center gap-2 px-3 py-2 hover:bg-[rgb(60,60,62)] rounded transition-colors">
+       <Inbox size={18} />
+       <span className="text-sm">Inbox</span>
+     </a>
+     <a href="/projects" className="flex items-center gap-2 px-3 py-2 hover:bg-[rgb(60,60,62)] rounded transition-colors">
+       <Folder size={18} />
+       <span className="text-sm">Projects</span>
+     </a>
+   </nav>
+   \`\`\`
+   
+   ROUTE MAPPING (extract from screenshot labels):
+   • "Home" → href="/"
+   • "My Tasks" / "Tasks" → href="/tasks"
+   • "Inbox" → href="/inbox"
+   • "Projects" / "My Projects" → href="/projects"
+   • "Portfolio" → href="/portfolio"
+   • "Goals" → href="/goals"
+   • "Reporting" → href="/reporting"
+   • "Messages" → href="/messages"
+
+3. ACTIVE STATE DETECTION (MANDATORY):
+   \`\`\`tsx
+   const isActive = (path: string) => {
+     if (typeof window !== 'undefined') {
+       return window.location.pathname === path;
+     }
+     return false;
+   };
+   
+   <a 
+     href="/tasks" 
+     className={\`flex items-center gap-2 px-3 py-2 rounded transition-colors \${
+       isActive('/tasks') ? 'bg-[rgb(60,60,62)]' : 'hover:bg-[rgb(60,60,62)]'
+     }\`}
+   >
+     <CheckSquare size={18} />
+     <span className="text-sm">My Tasks</span>
+   </a>
+   \`\`\`
+
+4. USE EXACT COLORS FROM EXTRACTED PALETTE:
+   - Background: Use darkest color (typically rgb(46,46,48))
+   - Text: Use lightest color (typically rgb(245,244,243))
+   - Hover: Slightly lighter than background (rgb(60,60,62))
+   - Selected: Even lighter or with accent border
+
+5. IMPORT CORRECT ICONS FROM LUCIDE-REACT:
+   Common icons: Home, CheckSquare, Inbox, BarChart2, Folder, Users, Star, Plus, Search, Menu, X, ChevronDown
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+⚠️ CRITICAL: Study the screenshot and replicate EVERY detail:
+- Exact navigation labels
+- Correct route hrefs
+- Proper icon choices
+- Collapsible behavior if present
+- Active state styling
+- All sections and groupings
+
+Return only the complete TypeScript React component code with useState if collapsible.`;
 }
 
 
@@ -292,25 +436,105 @@ async function generateComponentIndex(components) {
 }
 
 /**
- * Generate all page components
+ * Validate generated page for functionality
+ */
+function validatePageFunctionality(code, filename) {
+  const issues = [];
+  
+  // Check for buttons without onClick
+  const hasButtons = code.includes('<button');
+  if (hasButtons && !code.includes('onClick')) {
+    issues.push('Buttons missing onClick handlers');
+  }
+  
+  // Check for checkboxes without onChange
+  const hasCheckboxes = code.includes('type="checkbox"');
+  if (hasCheckboxes && !code.includes('onChange')) {
+    issues.push('Checkboxes missing onChange handlers');
+  }
+  
+  // Check for text inputs without onChange
+  const hasTextInputs = code.includes('type="text"');
+  if (hasTextInputs && !code.includes('onChange')) {
+    issues.push('Text inputs missing onChange handlers');
+  }
+  
+  // Check for CRUD operations
+  const hasCRUDButtons = code.match(/Add|Create|Delete|Remove/i);
+  if (hasCRUDButtons) {
+    const hasAddFunction = code.includes('addTask') || code.includes('addItem');
+    const hasDeleteFunction = code.includes('deleteTask') || code.includes('deleteItem');
+    const hasToggleFunction = code.includes('toggleTask') || code.includes('toggleItem');
+    
+    if (!hasAddFunction && code.match(/Add|Create/i)) {
+      issues.push('Add/Create button without add function');
+    }
+    if (!hasDeleteFunction && code.match(/Delete|Remove/i)) {
+      issues.push('Delete/Remove button without delete function');
+    }
+    if (hasCheckboxes && !hasToggleFunction) {
+      issues.push('Checkboxes without toggle function');
+    }
+  }
+  
+  // Check for useState
+  if ((hasButtons || hasCheckboxes || hasTextInputs) && !code.includes('useState')) {
+    issues.push('Interactive elements without useState');
+  }
+  
+  return issues;
+}
+
+/**
+ * Generate all page components with validation loop
  */
 async function generatePages(crawlData, components) {
   const pagesDir = path.join(GENERATED_APP_DIR, 'src', 'pages');
+  const MAX_RETRIES = 3;
 
   for (const pageData of crawlData) {
-    try {
-      const prompt = await buildPagePrompt(pageData, components);
-      const screenshotPath = pageData.screenshotPath?.viewport || pageData.screenshotPath?.full;
-      const code = await generatePage(pageData, components, prompt, screenshotPath);
+    const filename = getPageFilename(pageData.path, pageData.title);
+    const filepath = path.join(pagesDir, filename);
+    let retries = 0;
+    let success = false;
+    let previousIssues = null;
 
-      // Create filename from page path and title
-      const filename = getPageFilename(pageData.path, pageData.title);
-      const filepath = path.join(pagesDir, filename);
-      await fs.writeFile(filepath, code, 'utf-8');
+    while (retries < MAX_RETRIES && !success) {
+      try {
+        // Pass previous validation issues to the prompt for fixing
+        const prompt = await buildPagePrompt(pageData, components, previousIssues);
+        const screenshotPath = pageData.screenshotPath?.viewport || pageData.screenshotPath?.full;
+        const code = await generatePage(pageData, components, prompt, screenshotPath);
 
-      console.log(chalk.gray(`   ✓ ${filename}`));
-    } catch (error) {
-      console.error(chalk.red(`   ✗ ${pageData.path}: ${error.message}`));
+        // Validate the generated code
+        const issues = validatePageFunctionality(code, filename);
+        
+        if (issues.length === 0) {
+          // Save the valid code
+          await fs.writeFile(filepath, code, 'utf-8');
+          console.log(chalk.green(`   ✓ ${filename} (validated)`));
+          success = true;
+        } else {
+          retries++;
+          previousIssues = issues; // Store issues to pass to next attempt
+          
+          if (retries < MAX_RETRIES) {
+            console.log(chalk.yellow(`   ⚠ ${filename} validation failed (attempt ${retries}/${MAX_RETRIES}): ${issues.join(', ')}`));
+            console.log(chalk.gray(`      Regenerating with validation feedback...`));
+          } else {
+            // Save anyway after max retries
+            await fs.writeFile(filepath, code, 'utf-8');
+            console.log(chalk.red(`   ✗ ${filename} saved with issues: ${issues.join(', ')}`));
+            success = true;
+          }
+        }
+      } catch (error) {
+        console.error(chalk.red(`   ✗ ${filename}: ${error.message}`));
+        retries++;
+        if (retries >= MAX_RETRIES) {
+          success = true; // Exit loop
+        }
+      }
     }
   }
 }

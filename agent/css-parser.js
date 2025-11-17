@@ -191,7 +191,7 @@ function categorizeColors(styleData) {
 
   // Identify accent colors (vibrant colors used less frequently)
   const allColors = Array.from(styleData.colors);
-  const accentColors = allColors.filter(c => isVibranthColor(c));
+  const accentColors = allColors.filter(c => isVibrantColor(c));
   
   if (accentColors.length > 0) {
     // Categorize by hue

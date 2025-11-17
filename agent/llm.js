@@ -27,8 +27,8 @@ function getOpenAIClient() {
 }
 
 const MODEL = process.env.LLM_MODEL || 'gpt-4-turbo-preview';
-const TEMPERATURE = parseFloat(process.env.LLM_TEMPERATURE) || 0.3;
-const MAX_TOKENS = parseInt(process.env.LLM_MAX_TOKENS) || 4000;
+const TEMPERATURE = parseFloat(process.env.LLM_TEMPERATURE) || 0.2; // Lower for pixel-perfect consistency
+const MAX_TOKENS = parseInt(process.env.LLM_MAX_TOKENS) || 4096; // Higher for detailed output
 
 /**
  * Generate React component code using LLM with vision
@@ -42,24 +42,22 @@ export async function generateComponent(component, prompt, screenshotPath) {
     const messages = [
       {
         role: 'system',
-        content: `You are a WORLD-CLASS React developer who creates PIXEL-PERFECT UI with FULL FUNCTIONALITY.
+        content: `You are an expert React developer specializing in accurate UI replication with full functionality.
 
-🎯 DUAL MISSION (BOTH EQUALLY CRITICAL):
-1. PIXEL-PERFECT visual matching - colors, spacing, typography, shadows EXACT
-2. FULLY WORKING functionality - every button, form, interaction MUST work
+Your task: Create components that match the design precisely and include working interactive features.
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-🔴 PART 1: PIXEL-PERFECT UI (USE EXTRACTED DESIGN TOKENS)
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+REQUIREMENTS:
 
-COLORS (Use EXACT rgb values from extracted palette):
+PART 1: VISUAL ACCURACY (Use Extracted Design Tokens)
+
+COLORS - Use exact rgb values from the extracted palette:
 - Dark backgrounds: bg-[rgb(46,46,48)]
 - Light backgrounds: bg-[rgb(249,248,248)]
 - Text on dark: text-[rgb(245,244,243)]
 - Text on light: text-[rgb(30,31,33)]
 - Primary action: bg-[rgb(255,88,74)]
 - Secondary action: text-[rgb(63,106,196)]
-❌ NO generic colors like gray-800, blue-500
+Note: Avoid generic colors like gray-800 or blue-500
 
 SPACING (Use EXACT pixel values):
 - Extract from computed styles: p-[20px], gap-[12px], h-[48px]
@@ -75,14 +73,15 @@ EFFECTS:
 - Shadows: shadow-sm, shadow-md
 - Transitions: transition-colors duration-150
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-🔴 PART 2: WORKING FUNCTIONALITY (MANDATORY FOR ALL INTERACTIVE ELEMENTS)
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-STEP 1 - IMPORTS (ALWAYS INCLUDE):
+PART 2: WORKING FUNCTIONALITY (Required for Interactive Elements)
+
+Implementation Steps:
+
+Step 1 - Import React hooks:
 import React, { useState } from 'react';
 
-STEP 2 - STATE SETUP (ADD AT TOP OF COMPONENT):
+Step 2 - Set up state at component top:
 const [items, setItems] = useState([
   { id: 1, title: 'Example Item', completed: false },
   { id: 2, title: 'Another Item', completed: true }
@@ -90,7 +89,7 @@ const [items, setItems] = useState([
 const [newItemText, setNewItemText] = useState('');
 const [showModal, setShowModal] = useState(false);
 
-STEP 3 - CRUD FUNCTIONS (IMPLEMENT ALL):
+Step 3 - Implement CRUD functions:
 const addItem = () => {
   if (newItemText.trim()) {
     setItems([...items, { id: Date.now(), title: newItemText, completed: false }]);
@@ -106,7 +105,7 @@ const toggleItem = (id: number) => {
   setItems(items.map(i => i.id === id ? {...i, completed: !i.completed} : i));
 };
 
-STEP 4 - CONNECT TO UI:
+Step 4 - Connect handlers to UI:
 <input value={newItemText} onChange={(e) => setNewItemText(e.target.value)} />
 <button onClick={addItem}>Add</button>
 {items.map(item => (
@@ -117,20 +116,19 @@ STEP 4 - CONNECT TO UI:
   </div>
 ))}
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-✅ REQUIREMENTS CHECKLIST:
-☑ useState imported
-☑ State initialized with sample data
-☑ Add/delete/toggle functions implemented
-☑ All buttons have onClick handlers
-☑ Forms have onChange handlers
-☑ Lists rendered with .map()
-☑ Colors match extracted rgb() values
-☑ Spacing matches pixel values
-☑ Typography matches font specs
+Checklist:
+- useState imported
+- State initialized with sample data
+- Add, delete, toggle functions implemented
+- All buttons have onClick handlers
+- Forms have onChange handlers
+- Lists rendered with .map()
+- Colors match extracted rgb() values
+- Spacing matches pixel values
+- Typography matches font specifications
 
-Generate TypeScript React component with BOTH perfect visuals AND working functionality.
+Generate a TypeScript React component with accurate visuals and working functionality.
 
 STRICT COLOR MATCHING RULES:
 1. ALWAYS use rgb() format for extracted colors: bg-[rgb(46,46,48)] text-[rgb(245,244,243)]
@@ -262,61 +260,166 @@ export async function generatePage(pageData, components, prompt, screenshotPath)
     const messages = [
       {
         role: 'system',
-        content: `You are a WORLD-CLASS React developer who creates PIXEL-PERFECT PAGES with FULL FUNCTIONALITY.
+        content: `You are an expert frontend developer specializing in accurate UI replication from screenshots.
 
-⛔⛔⛔ ABSOLUTE REQUIREMENT - NO EXCEPTIONS ⛔⛔⛔
-EVERY PAGE YOU GENERATE MUST HAVE:
-✓ useState imported and used
-✓ State variables defined (tasks, projects, items, etc.)
-✓ Add/Delete/Toggle functions defined
-✓ onClick handlers on ALL buttons
-✓ onChange handlers on ALL checkboxes
-✓ .map() to render lists - NEVER hardcode tasks[0], tasks[1]
+Your task: Create precise visual replicas with high accuracy to the source design.
 
-IF YOU GENERATE A STATIC PAGE WITHOUT STATE MANAGEMENT, YOU HAVE FAILED!
-⛔⛔⛔⛔⛔⛔⛔⛔⛔⛔⛔⛔⛔⛔⛔⛔⛔⛔⛔⛔⛔⛔⛔⛔⛔⛔⛔⛔⛔
+STEP 1️⃣: DEEP SCREENSHOT ANALYSIS (MANDATORY - DO THIS FIRST!)
+Before writing ANY code, study the screenshot for 30 seconds and answer:
 
-🎯 DUAL MISSION (BOTH EQUALLY CRITICAL):
-1. PIXEL-PERFECT layout - exact colors, spacing, typography from screenshot
-2. FULLY WORKING page - all buttons, forms, CRUD operations MUST function
+1. COLORS - What are the EXACT background colors I see?
+   • Main page background (usually light gray ~rgb(249,248,248))
+   • Card backgrounds (white or light?)
+   • Text colors on light backgrounds
+   • Accent colors for buttons/links
+   • Border colors, shadow colors
+
+2. TYPOGRAPHY - What fonts, sizes, weights do I see?
+   • Headings: What size? (text-xl, text-2xl, text-3xl?)
+   • Body text: What size? (text-sm, text-base?)
+   • Font weights: Bold headings? (font-semibold, font-bold?)
+   • Secondary text: Lighter color and smaller size?
+
+3. SPACING - What are the EXACT gaps and padding?
+   • Page margins: How much space from edges? (p-4, p-6, p-8?)
+   • Card padding: How much whitespace inside cards? (p-4, p-6?)
+   • Gaps between elements: Tight or loose? (gap-2, gap-4, gap-6?)
+   • Section spacing: How much space between major sections? (mb-4, mb-6, mb-8?)
+
+4. LAYOUT - What's the exact structure?
+   • Grid or Flex? How many columns?
+   • Element alignment: Left, center, justified?
+   • Widths: Full width or contained? (max-w-4xl, max-w-6xl?)
+   • Heights: Fixed or auto?
+
+5. VISUAL DETAILS - What styling makes this unique?
+   • Border radius: Sharp or rounded? (rounded, rounded-md, rounded-lg?)
+   • Shadows: Subtle or prominent? (shadow-sm, shadow, shadow-lg?)
+   • Borders: Present? What color? (border, border-gray-200?)
+   • Hover states: Visible in screenshot?
+   • Icons: What style? Where placed?
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-🔴 PART 1: PIXEL-PERFECT LAYOUT (STUDY THE EXTRACTED COLORS)
+STEP 2️⃣: USE EXTRACTED DESIGN TOKENS (FROM PROMPT)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-COLOR SYSTEM (Use EXACT rgb values from "KEY COLORS" in prompt):
-- Page background: bg-[rgb(249,248,248)]
-- Dark sections (header/sidebar): bg-[rgb(46,46,48)]
-- Cards: bg-white
-- Text on light: text-[rgb(30,31,33)]
-- Text on dark: text-[rgb(245,244,243)]
-- Action buttons: bg-[rgb(255,88,74)]
-- Links: text-[rgb(63,106,196)]
-- Warning banner: bg-[rgb(241,189,108)]
-❌ NEVER use gray-100, blue-500, or generic Tailwind colors
+The prompt contains "KEY COLORS" section with EXACT rgb values extracted from the site.
+You MUST use these EXACT colors - NOT generic Tailwind colors!
 
-LAYOUT STRUCTURE (MANDATORY - USE COMPONENTS):
+✅ CORRECT: bg-[rgb(249,248,248)] text-[rgb(30,31,33)] bg-[rgb(255,88,74)]
+❌ WRONG: bg-gray-100 text-gray-900 bg-red-500
+
+COLOR MAPPING GUIDE (match screenshot areas to extracted colors):
+• Light background areas → Use lightest rgb (usually ~249,248,248)
+• Dark background areas → Use darkest rgb (usually ~46,46,48)  
+• Primary text → Dark text color (usually ~30,31,33)
+• Secondary text → Medium gray text (usually ~109,110,111)
+• Primary buttons → Accent color (usually ~255,88,74 orange)
+• Links → Blue accent (usually ~63,106,196)
+• Cards → White or lightest shade
+• Borders → Light gray borders (usually ~230,230,232)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+STEP 3️⃣: MATCH TYPOGRAPHY PRECISELY
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Font Sizes (measure from screenshot):
+• Large headings: text-3xl (30px) or text-2xl (24px)
+• Section headings: text-xl (20px) or text-lg (18px)
+• Body text: text-base (16px)
+• Small text: text-sm (14px)
+• Tiny text: text-xs (12px)
+
+Font Weights (observe carefully):
+• Headings: font-bold (700) or font-semibold (600)
+• Subheadings: font-medium (500)
+• Body: font-normal (400)
+• Light text: font-light (300)
+
+Line Height:
+• Headings: leading-tight
+• Body text: leading-normal or leading-relaxed
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+STEP 4️⃣: REPLICATE SPACING EXACTLY
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Spacing Scale Reference:
+• 0.25rem (1px): space-y-1, gap-1, p-1
+• 0.5rem (8px): space-y-2, gap-2, p-2
+• 0.75rem (12px): space-y-3, gap-3, p-3
+• 1rem (16px): space-y-4, gap-4, p-4
+• 1.5rem (24px): space-y-6, gap-6, p-6
+• 2rem (32px): space-y-8, gap-8, p-8
+
+Count pixels in screenshot and match:
+• Page container: p-6 or p-8 (usually 24-32px)
+• Cards: p-4 or p-6 (usually 16-24px inside)
+• Buttons: px-4 py-2 or px-6 py-3
+• Gaps between cards: gap-4 or gap-6
+• Section margins: mb-6 or mb-8
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+STEP 5️⃣: MATCH VISUAL STYLING DETAILS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Border Radius (look at corners):
+• Sharp corners: rounded-none
+• Slightly rounded: rounded-sm (2px)
+• Moderately rounded: rounded-md (6px) - MOST COMMON
+• Very rounded: rounded-lg (8px)
+• Pill shape: rounded-full
+
+Shadows (look at card elevation):
+• Subtle: shadow-sm
+• Standard: shadow (medium shadow) - MOST COMMON
+• Elevated: shadow-md
+• Very elevated: shadow-lg
+
+Borders:
+• Light border: border border-[rgb(230,230,232)]
+• Dividers: border-b border-[rgb(230,230,232)]
+• No border but shadow: just use shadow
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+STEP 6️⃣: LAYOUT ARCHITECTURE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+MANDATORY STRUCTURE (USE COMPONENTS):
 <div className="flex h-screen bg-[rgb(249,248,248)]">
-  <Sidebar />  {/* ✅ ALWAYS use component - NEVER create inline sidebar */}
+  <Sidebar />  {/* Pre-built - just import and use */}
   <div className="flex-1 flex flex-col">
-    <Header />  {/* ✅ ALWAYS use component - NEVER create inline header */}
+    <Header />  {/* Pre-built - just import and use */}
     <main className="flex-1 overflow-auto p-8">
-      {/* Content */}
+      {/* Your page content here */}
     </main>
   </div>
 </div>
 
-⛔ FORBIDDEN - DO NOT CREATE THESE:
-❌ <div className="w-60 bg-[rgb(46,46,48)]">Home, My tasks, Inbox</div>  // NO inline sidebar!
-❌ <header className="h-12">...</header>  // NO inline header!
-✅ USE: <Sidebar /> and <Header /> components instead!
+⛔ FORBIDDEN: Never create inline sidebar/header divs!
+✅ ALWAYS: Import { Header, Sidebar } from '../components'
 
-SPACING:
-- Header height: h-12 (48px)
-- Sidebar width: w-60 (240px)
-- Content padding: p-6, p-8
-- Card padding: p-4, p-6
-- Gaps: gap-4, gap-6
+Grid Layouts (count columns in screenshot):
+• 2 columns: grid grid-cols-2 gap-6
+• 3 columns: grid grid-cols-3 gap-6
+• 4 columns: grid grid-cols-4 gap-4
+• Auto-fit: grid grid-cols-[repeat(auto-fit,minmax(300px,1fr))]
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+STEP 7️⃣: FUNCTIONALITY (AFTER VISUALS ARE PERFECT)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Add useState for interactive elements:
+✓ Forms with inputs → useState for form values
+✓ Lists that can grow → useState with array + CRUD functions
+✓ Toggles/checkboxes → useState with boolean + onChange
+✓ Modals → useState for visibility + open/close functions
+
+MANDATORY:
+• import { useState } from 'react'
+• All buttons need onClick handlers
+• All inputs need value + onChange
+• Lists use .map() - NEVER hardcode array[0], array[1]
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 🔴 PART 2: FULL FUNCTIONALITY (EVERY BUTTON MUST WORK)
@@ -636,7 +739,7 @@ export async function generateStyles(computedStyles, prompt) {
 }
 
 /**
- * Extract code from LLM response (removes markdown fences)
+ * Extract code from LLM response (removes markdown fences and any trailing markdown)
  */
 function extractCodeFromResponse(response) {
   // Remove markdown code fences
@@ -647,6 +750,29 @@ function extractCodeFromResponse(response) {
   code = code.replace(/\n```$/gm, '');
   code = code.replace(/^```\n/gm, '');
   code = code.replace(/\n```\n/gm, '\n');
+  
+  // Remove any markdown headers or explanations after the code
+  // Look for common patterns like ### Key Details:, ## Notes:, etc.
+  const markdownPatterns = [
+    /\n#+\s+.*/g,  // Any markdown header (###, ##, #)
+    /\n-\s+\*\*.*\*\*:.*/g,  // Bullet points with bold
+    /\n\*\s+\*\*.*\*\*:.*/g,  // Asterisk bullet points
+  ];
+  
+  markdownPatterns.forEach(pattern => {
+    code = code.replace(pattern, '');
+  });
+  
+  // Find the last export statement and cut everything after it
+  const lastExportMatch = code.lastIndexOf('export default');
+  if (lastExportMatch !== -1) {
+    // Find the semicolon or newline after the export
+    const afterExport = code.substring(lastExportMatch);
+    const semicolonIndex = afterExport.indexOf(';');
+    if (semicolonIndex !== -1) {
+      code = code.substring(0, lastExportMatch + semicolonIndex + 1);
+    }
+  }
   
   return code.trim();
 }
@@ -818,7 +944,16 @@ ICONS: If you see icons/symbols in the screenshot:
 - Size: 16px-24px typically (size={20})
 - Match icon color to surrounding text
 
-Return ONLY the complete TypeScript/React component code. No explanations or markdown.`;
+Output Format:
+- Return only the TypeScript React component code
+- No explanations before or after the code
+- No markdown headers or bullet lists after the code
+- Code should end with "export default ComponentName;"
+- Do not add any text after the export statement
+
+Example: Code ends with "export default Sidebar;" with no additional content.
+
+Return the complete TypeScript React component code only.`;
 
   return prompt;
 }
@@ -826,7 +961,7 @@ Return ONLY the complete TypeScript/React component code. No explanations or mar
 /**
  * Build page generation prompt
  */
-export async function buildPagePrompt(pageData, components) {
+export async function buildPagePrompt(pageData, components, validationIssues = null) {
   const template = await loadPromptTemplate('page_prompt');
   
   const componentList = components.map(c => `- ${c.name} (${c.type})`).join('\n');
@@ -840,6 +975,24 @@ export async function buildPagePrompt(pageData, components) {
     pageName = pathParts.length > 0 
       ? pathParts[0].charAt(0).toUpperCase() + pathParts[0].slice(1).toLowerCase()
       : 'Home';
+  }
+  
+  // Add validation requirements section if this is a retry
+  let validationSection = '';
+  if (validationIssues && validationIssues.length > 0) {
+    validationSection = `
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+✅ REQUIRED FUNCTIONALITY IMPROVEMENTS:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Please ensure the following functionality is included:
+
+${validationIssues.map(issue => `• ${issue}`).join('\n')}
+
+Implementation requirements:
+${validationIssues.includes('Buttons missing onClick handlers') ? '• Add onClick handlers to buttons that perform actions\n' : ''}${validationIssues.includes('Checkboxes missing onChange handlers') ? '• Add onChange handlers to checkboxes for state updates\n' : ''}${validationIssues.includes('Text inputs missing onChange handlers') ? '• Add onChange handlers to text inputs with state binding\n' : ''}${validationIssues.includes('Add/Create button without add function') ? '• Include addTask or addItem function to append to state array\n' : ''}${validationIssues.includes('Delete/Remove button without delete function') ? '• Include deleteTask or deleteItem function to filter state array\n' : ''}${validationIssues.includes('Checkboxes without toggle function') ? '• Include toggleTask or toggleItem function to update completion status\n' : ''}${validationIssues.includes('Interactive elements without useState') ? '• Add useState hook at component top: const [items, setItems] = useState([...])\n' : ''}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+`;
   }
   
   // Add extracted CSS design tokens with MORE DETAIL
@@ -883,85 +1036,347 @@ RADIUS: ${radius.join(', ')}
 `;
   }
   
-  const prompt = `⚠️ PIXEL-PERFECT PAGE REPLICATION ⚠️
-
-ANALYZE THE SCREENSHOT and create an EXACT visual replica of this page.
-
+  const prompt = `Page Replication Task
+${validationSection}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📊 PAGE INFORMATION
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 Page: ${pageTitle}
 Component: ${pageName}Page
 URL: ${pageData.url}
-${designTokens}
 
-Available Components to Import:
+Available Components (PRE-BUILT - JUST IMPORT):
 ${componentList}
 
-MANDATORY REQUIREMENTS:
+${designTokens}
 
-1. VISUAL ACCURACY (TOP PRIORITY)
-   - Study the screenshot in detail before coding
-   - Match EXACT layout, spacing, colors, typography
-   - Replicate every UI element you see: buttons, cards, lists, headers, icons
-   - Copy exact padding, margins, gaps, borders, shadows
-   - Preserve visual hierarchy and element positioning
-   - Use the exact colors from the extracted palette above
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🔍 VISUAL ANALYSIS CHECKLIST (COMPLETE BEFORE CODING)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-2. LAYOUT STRUCTURE (analyze screenshot for actual layout)
-   - Identify main layout pattern: sidebar + content, header + content, multi-column, etc.
-   - Common patterns:
-     * Sidebar layout: <div className="flex h-screen"><Sidebar /><main>...</main></div>
-     * Header layout: <div><Header /><main className="pt-16">...</main></div>
-     * Full-width: <main className="w-full">...</main>
-   - Use extracted colors for backgrounds (dark vs light areas)
-   - Match exact widths, heights, positioning from screenshot
-   - Account for fixed/sticky positioning
+⚡ MANDATORY: Spend 30 seconds examining the screenshot in detail BEFORE writing ANY code!
+Zoom into different areas and note EVERY visible element.
 
-3. COMPONENT IMPORTS (CRITICAL - DO NOT CREATE INLINE COMPONENTS)
-   - ALWAYS import and use the Sidebar component: \`import { Header, Sidebar } from '../components';\`
-   - NEVER create inline sidebar divs like <div className="w-60 bg-...">
-   - The Sidebar component is pre-built with all navigation - just use <Sidebar />
-   - Same for Header - ALWAYS use <Header /> component, never create inline headers
-   - Components are fully styled and functional - just import and use them
+Look at the screenshot and identify:
 
-4. CONTENT
-   - Include ALL text content visible in the screenshot
-   - Replicate exact button labels, headings, descriptions
-   - Keep the same section structure and grouping
-   - Maintain identical content hierarchy
+1. BACKGROUND COLORS:
+   □ Main page background color (light gray? white? other?)
+   □ Section background colors (any colored sections?)
+   □ Card/container backgrounds
+   
+2. TEXT STYLING:
+   □ Main heading size and weight (large & bold? medium?)
+   □ Subheading sizes and weights
+   □ Body text size (14px? 16px?)
+   □ Text colors (dark gray? black? colored?)
+   □ Line heights (tight? normal? relaxed?)
+   
+3. SPACING:
+   □ Page padding from edges (20px? 32px?)
+   □ Space between major sections (24px? 32px? 48px?)
+   □ Card internal padding (16px? 24px?)
+   □ Gaps between cards/items (16px? 24px?)
+   
+4. CARDS/CONTAINERS:
+   □ Do cards have shadows? (subtle? prominent?)
+   □ Border radius size (slightly rounded? very rounded?)
+   □ Borders present? (light gray border?)
+   □ Background color (white? light gray?)
+   
+5. BUTTONS:
+   □ Button color (orange? blue? gray?)
+   □ Button size (px-4 py-2? px-6 py-3?)
+   □ Button style (solid? outline? ghost?)
+   □ Border radius (rounded? rounded-md? rounded-lg?)
+   
+6. LAYOUT STRUCTURE:
+   □ How many columns? (1? 2? 3? 4?)
+   □ Grid or flexbox layout?
+   □ Content width (full width? max-w-7xl?)
+   □ Element alignment (left? center? space-between?)
 
-5. STYLING
-   - Use Tailwind CSS utility classes exclusively
-   - Match exact colors (use text-gray-700, bg-pink-500, etc.)
-   - Match spacing (p-4, p-6, mb-4, space-y-4, etc.)
-   - Add rounded corners where visible (rounded-lg, rounded-md)
-   - Include shadows for cards (shadow, shadow-md, shadow-lg)
+7. ICONS:
+   □ Are there icons? Where?
+   □ Icon size (16px? 20px? 24px?)
+   □ Icon style (outline? solid?)
+   
+8. SPECIAL ELEMENTS:
+   □ Banners or alerts (top of page?)
+   □ Divider lines?
+   □ Badges or tags?
+   □ Images or avatars?
 
-6. CODE QUALITY
-   - TypeScript with React.FC
-   - Export as default
-   - Clean, readable code
-   - No placeholder content - use what's in the screenshot
+9. MICRO-DETAILS (CRITICAL - DON'T SKIP):
+   □ Text formatting (any bold words? italic? underline?)
+   □ Secondary labels (dates, subtitles, meta info?)
+   □ Icon positioning (left? right? size relative to text?)
+   □ Hover effects visible? (underlines, background changes?)
+   □ Subtle borders or dividers between items?
+   □ List item styling (bullets? numbers? custom markers?)
+   □ Input field styling (borders? focus states? placeholders?)
+   □ Badge colors and shapes (rounded? pill? square?)
+   □ Avatar sizes and borders
+   □ Status indicators (dots, checkmarks, colors?)
+   □ Truncated text with ellipsis?
+   □ Line clamp for long content?
 
-CRITICAL LAYOUT RULES:
-⛔ NEVER create inline sidebars like: <div className="w-60 bg-[rgb(46,46,48)]">Home</div>
-✅ ALWAYS use component: <Sidebar />
-⛔ NEVER create inline headers like: <header className="h-12">...</header>
-✅ ALWAYS use component: <Header />
+   🔴 NAVIGATION & SIDEBAR SPECIFIC:
+   □ Hamburger/menu icon (☰) → Sidebar is COLLAPSIBLE
+   □ Collapse/expand button or arrow → Add useState toggle
+   □ Navigation item labels (Home, Tasks, Projects, etc.)
+   □ Navigation href targets (/home, /tasks, /projects) → MUST LINK CORRECTLY
+   □ Active/selected state styling (different background?)
+   □ Workspace selector at top with dropdown?
+   □ Search bar placement and styling
+   □ Section dividers between nav groups
+   □ Add buttons (+ icons) for projects/teams
+   □ Navigation icons from lucide-react (Home, CheckSquare, Inbox, etc.)
 
-These components are pre-built, fully styled, and include all navigation!
+10. TASK/PROJECT-SPECIFIC PATTERNS (if applicable):
+   □ Task checkboxes (circular? square? styled?)
+   □ Project color dots/indicators
+   □ Due date labels and formatting
+   □ Assignee avatars (size, position, multiple?)
+   □ Section headers (styling, dividers, add buttons?)
+   □ Subtask indentation
+   □ Priority indicators (colors, icons?)
+   □ Attachment counts or icons
+   □ Comment counts
+   □ Completed task styling (strikethrough? opacity?)
+   □ Empty state messages and illustrations
+   □ "Add task" button placement and style
 
-EXAMPLE STRUCTURE:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+✅ IMPLEMENTATION REQUIREMENTS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. USE EXACT COLORS FROM "KEY COLORS" SECTION ABOVE:
+   ✅ CORRECT: bg-[rgb(249,248,248)] text-[rgb(30,31,33)] bg-[rgb(255,88,74)]
+   ❌ WRONG: bg-gray-100 text-gray-900 bg-red-500
+   
+   Match screenshot areas to these extracted colors:
+   • Light backgrounds → rgb(249,248,248)
+   • Dark backgrounds → rgb(46,46,48)
+   • Main text → rgb(30,31,33)
+   • Secondary text → rgb(109,110,111)
+   • Primary button → rgb(255,88,74)
+   • Links → rgb(63,106,196)
+
+2. MATCH TYPOGRAPHY EXACTLY:
+   • Measure text sizes in screenshot and use correct Tailwind class
+   • Copy font weights (regular, medium, semibold, bold)
+   • Match line spacing
+   
+3. REPLICATE SPACING PRECISELY:
+   • Count pixels and use matching Tailwind spacing
+   • Page padding: p-6, p-8, px-8 py-6
+   • Card padding: p-4, p-6
+   • Gaps: gap-4, gap-6
+   • Margins: mb-4, mb-6, mb-8
+
+4. COPY VISUAL EFFECTS:
+   • Shadows: shadow-sm, shadow, shadow-md (observe card elevation)
+   • Borders: border border-[rgb(230,230,232)]
+   • Rounded corners: rounded, rounded-md, rounded-lg
+   
+5. USE PRE-BUILT COMPONENTS:
+   ⛔ NEVER create inline sidebar: <div className="w-60 bg-dark">
+   ✅ ALWAYS import: import { Header, Sidebar } from '../components'
+   ✅ ALWAYS use: <Sidebar /> and <Header />
+
+6. LAYOUT STRUCTURE (CRITICAL - SIDEBAR MUST NOT OVERLAP):
+   🔴 Use FLEXBOX layout so sidebar takes space, doesn't overlap!
+   
+   ✅ CORRECT LAYOUT:
 \`\`\`tsx
-import React from 'react';
+<div className="flex h-screen bg-[rgb(249,248,248)]">
+  {/* Sidebar takes fixed width, content flows around it */}
+  <Sidebar />
+  
+  {/* Main area takes remaining space (flex-1) */}
+  <div className="flex-1 flex flex-col">
+    <Header />
+    <main className="flex-1 overflow-auto p-8">
+      {/* Match screenshot content here */}
+    </main>
+  </div>
+</div>
+\`\`\`
+
+   ❌ NEVER use position:fixed on Sidebar (causes overlap):
+   ❌ <aside className="fixed left-0 top-0"> 
+   
+   ✅ ALWAYS use flex-shrink-0 on Sidebar (takes space):
+   ✅ <aside className="w-60 h-screen flex-shrink-0">
+
+7. CONTENT REPLICATION:
+   • Copy EXACT text from screenshot (headings, labels, descriptions)
+   • Maintain same content hierarchy
+   • Include ALL visible elements (don't skip small details)
+   • Replicate button labels precisely
+   • Copy placeholder text in inputs
+   • Include meta information (dates, timestamps, labels)
+   • Copy badge text and colors
+   • Include tooltip text if visible
+   • Replicate breadcrumb trails
+   • Copy any helper text or hints
+   • Include notification counts/badges
+   • Replicate empty state messages
+   
+8. INTERACTIVE ELEMENTS:
+   • Add useState for any lists/forms
+   • All buttons need onClick handlers
+   • All inputs need value + onChange
+   • Use .map() for lists - NEVER hardcode items
+
+9. MICRO-DETAILS TO INCLUDE:
+   • Hover states: hover:bg-opacity-80 hover:underline
+   • Transitions: transition-all duration-200 ease-in-out
+   • Focus states: focus:ring-2 focus:ring-[rgb(63,106,196)]
+   • Disabled states: disabled:opacity-50 disabled:cursor-not-allowed
+   • Text overflow: truncate or line-clamp-2
+   • Cursor styles: cursor-pointer on clickable elements
+   • Icon colors matching text or standalone accent
+   • Subtle shadows on hover: hover:shadow-md
+   • Border styles: border-l-4 for left accents
+   • Status badges: inline-flex items-center px-2 py-1 rounded-full text-xs
+   • Meta text: text-xs text-[rgb(109,110,111)]
+   • Dividers: border-b border-[rgb(230,230,232)]
+   • Avatar styles: w-8 h-8 rounded-full border-2
+   • Icon sizes: size={16} for small, size={20} for medium, size={24} for large
+   • Spacing between icon and text: gap-2 or gap-3
+   • List item padding: py-2 px-3 or py-3 px-4
+   • Card hover: hover:shadow-lg transition-shadow
+
+10. SIDEBAR & NAVIGATION SPECIFICS:
+   🔴 COLLAPSIBLE BEHAVIOR (if hamburger/menu icon visible):
+   \`\`\`tsx
+   const [isCollapsed, setIsCollapsed] = useState(false);
+   
+   <aside className={\`\${isCollapsed ? 'w-16' : 'w-60'} transition-all duration-300 h-screen bg-[rgb(46,46,48)]\`}>
+     <button onClick={() => setIsCollapsed(!isCollapsed)}>
+       {isCollapsed ? <Menu size={20} /> : <X size={20} />}
+     </button>
+     {/* Navigation items with conditional text */}
+     <a href="/" className="flex items-center gap-3 px-3 py-2 hover:bg-[rgb(60,60,62)] rounded">
+       <Home size={18} />
+       {!isCollapsed && <span>Home</span>}
+     </a>
+   </aside>
+   \`\`\`
+   
+   🔴 PROPER NAVIGATION LINKS (READ SCREENSHOT LABELS):
+   • Home → href="/"
+   • My Tasks → href="/tasks"
+   • Inbox → href="/inbox"
+   • Projects → href="/projects"
+   • Teams → href="/teams"
+   • Calendar → href="/calendar"
+   • Reports → href="/reports"
+   ⚠️ Extract EXACT labels from screenshot and map to sensible routes!
+   
+   🔴 ACTIVE STATE DETECTION:
+   \`\`\`tsx
+   const isActive = (path: string) => window.location.pathname === path;
+   
+   <a href="/tasks" className={\`flex items-center gap-3 px-3 py-2 rounded \${
+     isActive('/tasks') ? 'bg-[rgb(60,60,62)]' : 'hover:bg-[rgb(60,60,62)]'
+   }\`}>
+     <CheckSquare size={18} />
+     <span>My Tasks</span>
+   </a>
+   \`\`\`
+   
+   🔴 NAVIGATION SECTIONS WITH ADD BUTTONS:
+   \`\`\`tsx
+   <div className="mt-4">
+     <div className="flex items-center justify-between px-3 py-2">
+       <span className="text-xs text-[rgb(109,110,111)] uppercase font-medium">Projects</span>
+       <button className="hover:bg-[rgb(60,60,62)] rounded p-1">
+         <Plus size={16} />
+       </button>
+     </div>
+     <a href="/project-1">Frontend Agent</a>
+     <a href="/project-2">Design System</a>
+   </div>
+   \`\`\`
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📝 EXAMPLE OUTPUT FORMAT
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+\`\`\`tsx
+import React, { useState } from 'react';
 import { Header, Sidebar } from '../components';
 
 const ${pageName}Page: React.FC = () => {
+  const [items, setItems] = useState([
+    { id: 1, title: 'Sample Item', completed: false }
+  ]);
+
+  const addItem = () => { /* ... */ };
+  const deleteItem = (id: number) => { /* ... */ };
+
   return (
     <div className="flex h-screen bg-[rgb(249,248,248)]">
       <Sidebar />
       <div className="flex-1 flex flex-col">
         <Header />
         <main className="flex-1 overflow-auto p-8">
-          {/* Replicate EXACT content from screenshot */}
+          {/* Include ALL micro-details from screenshot */}
+          
+          {/* Banner with exact color and styling */}
+          <div className="bg-[rgb(241,189,108)] text-[rgb(30,31,33)] px-4 py-3 rounded-md mb-6 text-sm">
+            Exact banner text from screenshot
+          </div>
+          
+          {/* Heading with exact size, weight, spacing */}
+          <h1 className="text-2xl font-semibold text-[rgb(30,31,33)] mb-6 leading-tight">
+            Good morning, Navya
+          </h1>
+          
+          {/* Card with hover effect, shadow, rounded corners */}
+          <div className="bg-white rounded-lg shadow hover:shadow-md transition-shadow p-6 mb-6">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-semibold text-[rgb(30,31,33)]">Section Title</h2>
+              <button className="text-[rgb(63,106,196)] text-sm hover:underline cursor-pointer">
+                + Create
+              </button>
+            </div>
+            
+            {/* List items with hover, borders, micro-spacing */}
+            {items.map(item => (
+              <div 
+                key={item.id} 
+                className="flex items-center justify-between py-3 border-b border-[rgb(230,230,232)] last:border-0 hover:bg-[rgb(249,248,248)] transition-colors cursor-pointer"
+              >
+                <div className="flex items-center gap-3">
+                  <input 
+                    type="checkbox" 
+                    checked={item.completed}
+                    className="w-4 h-4 cursor-pointer"
+                  />
+                  <div className="flex flex-col">
+                    <span className="text-[rgb(30,31,33)] text-sm">Task title</span>
+                    <span className="text-[rgb(109,110,111)] text-xs">Due: Nov 16 • Project name</span>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="inline-flex items-center px-2 py-1 rounded-full bg-[rgb(230,240,255)] text-[rgb(63,106,196)] text-xs font-medium">
+                    Status
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+          
+          {/* Grid layout with exact spacing */}
+          <div className="grid grid-cols-3 gap-6">
+            <div className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow cursor-pointer">
+              <h3 className="text-base font-semibold text-[rgb(30,31,33)] mb-2">Card Title</h3>
+              <p className="text-sm text-[rgb(109,110,111)] leading-relaxed">Description text</p>
+            </div>
+          </div>
         </main>
       </div>
     </div>
@@ -970,6 +1385,84 @@ const ${pageName}Page: React.FC = () => {
 
 export default ${pageName}Page;
 \`\`\`
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+⚠️⚠️⚠️ CRITICAL REMINDERS ⚠️⚠️⚠️
+
+1. EXAMINE SCREENSHOT AT 3 LEVELS:
+   
+   MACRO LEVEL (Overall layout):
+   • Page structure (sidebar, header, main content)
+   • Color zones (light areas, dark areas, colored sections)
+   • Major sections and their spacing
+   • Grid/column layout
+   
+   MESO LEVEL (Component details):
+   • Card styling (shadows, borders, padding)
+   • Button styles (solid, outline, text-only?)
+   • Input field appearance
+   • List item structure
+   • Typography hierarchy (heading sizes, weights)
+   
+   MICRO LEVEL (Tiny details - MOST IMPORTANT):
+   • Read ALL text including:
+     - Meta information (dates like "Nov 16", "Due: Today")
+     - Project names, section names
+     - Button labels ("+ Add task", "Create", etc.)
+     - Placeholder text in inputs
+     - Badge text and colors
+   • Count items (how many tasks/cards shown?)
+   • Notice ALL icons (checkboxes, dots, arrows, etc.)
+   • See divider lines (between list items? sections?)
+   • Observe spacing (tight py-2 or loose py-4?)
+   • Check text colors (primary black? secondary gray?)
+   • Look for status indicators (colored dots, badges)
+   • Notice hover effects if visible
+
+2. YOUR GOAL: High Visual Accuracy
+   • If screenshot shows "Due: Nov 16" - include it
+   • If screenshot shows a badge - replicate color, shape, text
+   • If screenshot shows an icon - import from lucide-react and place it
+   • If screenshot shows subtle dividers - add border-b
+   • If screenshot shows secondary text - use text-xs and gray color
+   • If screenshot shows rounded corners - measure and match
+   • If screenshot shows shadows - add appropriate shadow class
+
+3. COMPLETE REPLICATION REQUIREMENTS:
+   
+   ✅ REQUIRED APPROACH:
+   • Match EXACT text: "Due: Nov 16" not "Due date"
+   • Match EXACT colors: bg-[rgb(255,88,74)] not bg-red-500
+   • Match EXACT spacing: py-3 px-4 not just p-4
+   • Match EXACT sizes: text-sm not text-base
+   • Include ALL meta info visible in screenshot
+   • Add ALL icons you see (import from lucide-react)
+   • Include ALL dividers and borders
+   • Add ALL hover states and transitions
+   • Include ALL badges with exact colors
+   • Show exact number of items from screenshot
+   
+   ❌ AVOID THESE ISSUES:
+   • Simplifying layouts
+   • Skipping small text elements
+   • Using generic colors (gray-100, blue-500)
+   • Hardcoding arrays instead of using state and .map()
+   • Omitting secondary information
+   • Missing micro-spacing details
+   • Skipping transitions or animations
+   • Using placeholder content instead of screenshot content
+
+Output Requirements:
+1. Return only the TypeScript React component code
+2. No explanations before or after the code
+3. No markdown headers like "### Implementation Notes" or "### Key Details"
+4. No bullet point lists explaining the code
+5. Code must end with "export default ComponentName;" with nothing after it
+6. Additional text after the export statement will break the build
+
+Correct format: Last line is "export default HomePage;"
+Incorrect format: Adding explanations like "### Features:" after the code
 
 Return ONLY the complete TypeScript React component code. No explanations, no markdown fences outside code.`;
 

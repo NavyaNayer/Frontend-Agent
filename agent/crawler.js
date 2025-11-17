@@ -311,11 +311,52 @@ async function crawlPage(page, pagePath, index) {
   await page.waitForTimeout(PAGE_LOAD_WAIT);
   
   // Wait specifically for common sidebar patterns to load
+  let sidebarInfo = { detected: false, isCollapsible: false };
   try {
     await page.waitForSelector('aside, [class*="sidebar"], [class*="Sidebar"], [class*="Navigation"], nav[class*="navigation"]', { 
       timeout: 5000 
     });
     console.log(chalk.gray('      ✓ Sidebar detected in DOM'));
+    
+    // Check if sidebar is collapsible by looking for hamburger/menu/collapse buttons
+    sidebarInfo.detected = true;
+    sidebarInfo.isCollapsible = await page.evaluate(() => {
+      // Check for hamburger menu icon
+      const hamburgerSelectors = [
+        '[class*="hamburger"]',
+        '[class*="menu-toggle"]',
+        '[class*="sidebar-toggle"]',
+        '[class*="collapse"]',
+        '[aria-label*="menu"]',
+        '[aria-label*="navigation"]',
+        '[title*="menu"]',
+        '[title*="collapse"]',
+        'button[class*="Menu"]',
+        'svg[class*="hamburger"]'
+      ];
+      
+      const hasHamburger = hamburgerSelectors.some(selector => {
+        const elements = document.querySelectorAll(selector);
+        return elements.length > 0;
+      });
+      
+      // Check for specific icon patterns (☰, ≡, or similar)
+      const hasMenuIcon = Array.from(document.querySelectorAll('button, a, span')).some(el => {
+        const text = el.textContent || '';
+        const ariaLabel = el.getAttribute('aria-label') || '';
+        return text.includes('☰') || text.includes('≡') || 
+               ariaLabel.toLowerCase().includes('menu') ||
+               ariaLabel.toLowerCase().includes('sidebar') ||
+               ariaLabel.toLowerCase().includes('collapse') ||
+               ariaLabel.toLowerCase().includes('expand');
+      });
+      
+      return hasHamburger || hasMenuIcon;
+    });
+    
+    if (sidebarInfo.isCollapsible) {
+      console.log(chalk.cyan('      ✓ Collapsible sidebar detected (hamburger/menu icon found)'));
+    }
   } catch (e) {
     console.log(chalk.yellow('      ⚠ No sidebar element detected'));
   }
@@ -361,7 +402,10 @@ async function crawlPage(page, pagePath, index) {
     viewport: await page.viewportSize(),
     
     // Captured network resources
-    resources: capturedResources
+    resources: capturedResources,
+    
+    // Sidebar detection info
+    sidebarInfo: sidebarInfo
   };
 
   // Save HTML to file
