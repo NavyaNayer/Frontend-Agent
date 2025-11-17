@@ -276,10 +276,12 @@ Prompts carefully worded to avoid:
 <tr>
 <th>Original UI</th>
 <th>Generated UI</th>
+<th>Generated UI (Alternative View)</th>
 </tr>
 <tr>
-<td><img src="original_ui.png" alt="Original Asana UI" width="400"/></td>
-<td><img src="generated_ui.png" alt="Generated UI" width="400"/></td>
+<td><img src="original_ui.png" alt="Original Asana UI" width="350"/></td>
+<td><img src="generated_ui.png" alt="Generated UI" width="350"/></td>
+<td><img src="generated_ui2.png" alt="Generated UI Alternative" width="350"/></td>
 </tr>
 </table>
 
