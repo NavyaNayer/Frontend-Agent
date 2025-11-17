@@ -332,6 +332,6 @@ Generated app includes:
 - App uses local state (no backend)
 - For persistence, add localStorage or backend API
 
---
-**Built by Navya Nayer**
+---
+## Built by Navya Nayer
 
