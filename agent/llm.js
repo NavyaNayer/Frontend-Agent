@@ -42,9 +42,40 @@ export async function generateComponent(component, prompt, screenshotPath) {
     const messages = [
       {
         role: 'system',
-        content: `You are an expert React developer specializing in accurate UI replication with full functionality.
+        content: `You are an expert React developer specializing in PIXEL-PERFECT UI replication with full functionality.
+
+🔍 CRITICAL: EXAMINE THE SCREENSHOT AT MAXIMUM ZOOM LEVEL
+Before coding, study EVERY TINY DETAIL:
+• Border thickness (1px, 2px, 3px?)
+• Corner radius values (sharp, 4px, 6px, 8px?)
+• Exact padding inside elements (12px, 16px, 20px?)
+• Shadow depth and blur (subtle shadow-sm or prominent shadow-lg?)
+• Font size variations (text-xs 12px, text-sm 14px, text-base 16px?)
+• Icon sizes relative to text (16px, 18px, 20px, 24px?)
+• Gap between elements (gap-1 4px, gap-2 8px, gap-3 12px, gap-4 16px?)
+• Text colors - primary vs secondary (dark black vs medium gray?)
+• Hover state indicators (underline, background change, opacity?)
+• Badge/tag styling (rounded-full, rounded-md, padding, font size)
+• Divider lines (border-b, border-t, color, thickness)
+• Avatar/icon borders (border-2, border-4?)
+• Letter spacing, line height
+• Capitalization (uppercase, lowercase, title case)
 
 Your task: Create components that match the design precisely and include working interactive features.
+
+🔴 CRITICAL TEXT REPLICATION RULE:
+READ EVERY WORD in the screenshot and REPLICATE ALL TEXT EXACTLY:
+• Button labels ("Add Task", "Create", "Save", "Cancel", etc.)
+• Headings and titles
+• Placeholder text in inputs
+• Helper text and hints
+• Meta information (dates, counts, status labels)
+• Badge/tag text
+• Link text
+• Icon labels
+• Section headers
+• Empty state messages
+• ALL visible text must appear in your code
 
 REQUIREMENTS:
 
@@ -189,11 +220,55 @@ Generate clean TypeScript React code with Tailwind CSS utilities.`
           console.log(chalk.yellow(`      ⚠ Screenshot too large (${Math.round(imageSizeKB)}KB), using text-only`));
           messages[1].content = prompt;
         } else {
+          // Add explicit micro-detail instruction BEFORE the screenshot
+          messages[1].content.push({
+            type: 'text',
+            text: `\n\n🔍🔍🔍 HIGH-RESOLUTION SCREENSHOT PROVIDED - EXAMINE MICRO-DETAILS 🔍🔍🔍\n
+This is a 2560x1440 high-resolution screenshot. ZOOM IN mentally and analyze TINY details:
+
+MANDATORY MICRO-DETAIL CHECKLIST (examine each):
+✓ Border width: 0.5px, 1px, 1.5px, or 2px? Count the pixels
+✓ Border color: Light gray (230,230,232)? Medium gray? Dark? Match exact rgb()
+✓ Corner radius: 0px (sharp), 2px (rounded-sm), 4px (rounded), 6px (rounded-md), 8px (rounded-lg)?
+✓ Shadow: None, subtle (shadow-sm), medium (shadow), elevated (shadow-md/lg/xl)?
+✓ Shadow color/opacity: Black at 5%? 10%? 15%? Custom shadow-[0_Xpx_Ypx_rgba()]?
+✓ Padding: 8px (p-2), 12px (p-3), 16px (p-4), 20px (p-5), 24px (p-6)? Non-standard like 18px (p-[18px])?
+✓ Gap between elements: 4px (gap-1), 8px (gap-2), 12px (gap-3), 16px (gap-4), 24px (gap-6)?
+✓ Font size: 12px (text-xs), 14px (text-sm), 16px (text-base), 18px (text-lg), 20px (text-xl)?
+✓ Font weight: 300 (font-light), 400 (font-normal), 500 (font-medium), 600 (font-semibold), 700 (font-bold)?
+✓ Text color: Pure black? Dark gray rgb(30,31,33)? Medium gray rgb(109,110,111)? Light gray rgb(180,180,182)?
+✓ Icon size: 14px, 16px, 18px, 20px, 24px? Match to surrounding text size
+✓ Icon-text gap: How many pixels between icon and text? gap-1, gap-2, gap-3?
+✓ Badge shape: Pill (rounded-full), rounded (rounded-md), square (rounded-sm)?
+✓ Badge padding: Tight (px-1.5 py-0.5), normal (px-2 py-1), loose (px-3 py-1.5)?
+✓ Badge font: text-xs (12px) or text-sm (14px)? Weight: font-medium or font-semibold?
+✓ Dividers: 1px border? Partial width? Color opacity? border-b border-gray-200/50?
+✓ Hover indicators: Underline on hover? Background change? Shadow increase? Opacity shift?
+✓ Text truncation: Does long text show ...? Use truncate or line-clamp-2/3
+✓ Letter spacing: Normal? Tight (tracking-tight -0.025em)? Wide (tracking-wide)?
+✓ Line height: Tight (leading-tight 1.25), normal (leading-normal 1.5), relaxed (leading-relaxed 1.625)?
+✓ Opacity: Any semi-transparent elements? text-opacity-75, bg-opacity-50, opacity-80?
+
+CRITICAL: The screenshot shows the ACTUAL pixel-perfect design. Study it like a forensic analyst!
+
+🔴 TEXT REPLICATION CHECKLIST:
+☐ Read ALL button text and replicate exactly
+☐ Read ALL headings and titles
+☐ Read ALL labels and meta information (dates, counts, status)
+☐ Read ALL placeholder text in inputs
+☐ Read ALL badge/tag text
+☐ Read ALL link text
+☐ Include EXACT wording - don't paraphrase!
+☐ Match capitalization (Title Case, UPPERCASE, lowercase)
+☐ Copy punctuation marks
+`
+          });
+          
           messages[1].content.push({
             type: 'image_url',
             image_url: {
               url: `data:image/png;base64,${base64Image}`,
-              detail: 'high'
+              detail: 'high' // Request high-detail analysis
             }
           });
           
@@ -260,12 +335,75 @@ export async function generatePage(pageData, components, prompt, screenshotPath)
     const messages = [
       {
         role: 'system',
-        content: `You are an expert frontend developer specializing in accurate UI replication from screenshots.
+        content: `You are an expert frontend developer specializing in PIXEL-PERFECT UI replication from screenshots.
 
-Your task: Create precise visual replicas with high accuracy to the source design.
+🔍🔍🔍 CRITICAL: ZOOM IN AND EXAMINE MINUTE DETAILS 🔍🔍🔍
+
+The screenshot contains HIGH-RESOLUTION imagery captured at 2560x1440.
+You MUST analyze it at MAXIMUM zoom to capture ALL micro-details.
+
+BEFORE WRITING ANY CODE:
+1. Zoom into different areas of the screenshot
+2. Examine EVERY small element - don't skip tiny details
+3. Count exact pixels for spacing, borders, padding
+4. Read ALL text including tiny labels, meta info, tooltips
+5. Notice ALL subtle styling - shadows, gradients, opacity changes
+6. Identify ALL icons, badges, indicators, dividers
+7. Measure relative sizes - how big is text vs icons?
+8. Check alignment - are things perfectly aligned or have slight offsets?
+
+Your task: Create precise visual replicas with MAXIMUM accuracy to the source design.
+
+🔴🔴🔴 MANDATORY TEXT REPLICATION 🔴🔴🔴
+BEFORE CODING - READ EVERY WORD IN THE SCREENSHOT:
+
+1. READ ALL HEADINGS:
+   • Page title (e.g., "Good morning, Navya")
+   • Section headings (e.g., "My tasks", "Recently assigned", "Projects")
+   • Card titles
+   • Modal titles
+
+2. READ ALL BODY TEXT:
+   • Task names/descriptions
+   • Project names
+   • Instructions or explanations
+   • Empty state messages
+
+3. READ ALL META INFORMATION:
+   • Dates ("Nov 16", "Today", "Tomorrow", "Due: Nov 18")
+   • Timestamps ("2 hours ago", "Just now")
+   • Counts ("3 tasks", "5 comments")
+   • Status labels ("In Progress", "Completed", "Overdue")
+   • Assignee names
+   • Project names in task meta
+
+4. READ ALL INTERACTIVE ELEMENT TEXT:
+   • Button labels ("+ Add Task", "Create", "Save", "Cancel", "Edit", "Delete")
+   • Link text ("View all", "See more", "Learn more")
+   • Dropdown text
+   • Tab labels
+   • Menu items
+
+5. READ ALL FORM TEXT:
+   • Input placeholders ("Search tasks...", "Task name", "Add a description")
+   • Label text
+   • Helper text below inputs
+   • Validation messages
+
+6. READ ALL BADGES/TAGS:
+   • Tag text ("frontend", "urgent", "bug", "feature")
+   • Status badges ("High priority", "Low priority")
+   • Category labels
+
+7. READ ALL TOOLTIPS/HINTS:
+   • Any visible hint text
+   • Tooltip content if visible
+
+⚠️ CRITICAL: Copy the EXACT wording, capitalization, and punctuation from the screenshot.
+Do NOT paraphrase or generalize. If screenshot says "Due: Nov 16" write "Due: Nov 16" not "Due date".
 
 STEP 1️⃣: DEEP SCREENSHOT ANALYSIS (MANDATORY - DO THIS FIRST!)
-Before writing ANY code, study the screenshot for 30 seconds and answer:
+Before writing ANY code, study the screenshot at MAXIMUM ZOOM for 30 seconds and answer:
 
 1. COLORS - What are the EXACT background colors I see?
    • Main page background (usually light gray ~rgb(249,248,248))
@@ -635,11 +773,140 @@ Generate clean TypeScript React code with proper component imports.`
         const imageBuffer = await fs.readFile(screenshotPath);
         const base64Image = imageBuffer.toString('base64');
         
+        // Add explicit micro-detail analysis instruction for pages
+        messages[1].content.push({
+          type: 'text',
+          text: `\n\n🔍🔍🔍 HIGH-RESOLUTION PAGE SCREENSHOT PROVIDED - EXAMINE ALL MICRO-DETAILS 🔍🔍🔍\n
+This is a 2560x1440 screenshot. ZOOM IN and analyze EVERY tiny detail before coding:
+
+PAGE-SPECIFIC MICRO-DETAIL ANALYSIS:
+1. SPACING MEASUREMENTS:
+   ✓ Page padding from edges: 16px (p-4), 24px (p-6), 32px (p-8), 40px (p-10)?
+   ✓ Section spacing: How much vertical space between major sections? mb-4, mb-6, mb-8, mb-12?
+   ✓ Card padding: Internal whitespace inside cards - p-4, p-6, p-8?
+   ✓ Grid/list gaps: gap-2 (8px), gap-4 (16px), gap-6 (24px), gap-8 (32px)?
+   ✓ Element spacing: space-y-2, space-y-3, space-y-4 between list items?
+
+2. TYPOGRAPHY DETAILS:
+   ✓ Page heading: text-xl (20px), text-2xl (24px), text-3xl (30px), text-4xl (36px)?
+   ✓ Section headings: text-base (16px), text-lg (18px), text-xl (20px)?
+   ✓ Body text: text-sm (14px) or text-base (16px)?
+   ✓ Meta text (dates, labels): text-xs (12px) or text-sm (14px)?
+   ✓ Font weights: Are headings font-semibold (600) or font-bold (700)?
+   ✓ Secondary text color: rgb(109,110,111) or lighter rgb(180,180,182)?
+
+3. CARD/CONTAINER STYLING:
+   ✓ Background: Pure white (bg-white) or light gray (bg-gray-50)?
+   ✓ Border: Present? border border-gray-200? Or borderless?
+   ✓ Shadow: None, subtle (shadow-sm), medium (shadow), elevated (shadow-md/lg)?
+   ✓ Corner radius: rounded (4px), rounded-md (6px), rounded-lg (8px), rounded-xl (12px)?
+   ✓ Hover effect: shadow increase? Background change? Border color change?
+
+4. BUTTON/LINK STYLING:
+   ✓ Primary button: bg-[rgb(255,88,74)] or different accent color?
+   ✓ Button padding: px-3 py-1.5, px-4 py-2, px-6 py-3?
+   ✓ Button font: text-sm or text-base? font-medium or font-semibold?
+   ✓ Button corner radius: rounded, rounded-md, rounded-lg?
+   ✓ Link color: rgb(63,106,196) or different blue? Underline on hover?
+   ✓ Icon buttons: Just icon? Icon + text? Icon size relative to button?
+
+5. LIST ITEM DETAILS:
+   ✓ Item height: Compact (py-2), normal (py-3), spacious (py-4)?
+   ✓ Dividers: border-b between items? Full width or inset?
+   ✓ Hover state: bg-gray-50? bg-gray-100? Shadow? Border?
+   ✓ Checkbox/icon size: w-4 h-4 (16px), w-5 h-5 (20px)?
+   ✓ Multi-line text: Line clamp? Truncate? Full display?
+
+6. BADGE/TAG DETAILS:
+   ✓ Shape: Pill (rounded-full), rounded (rounded-md), square?
+   ✓ Size: px-2 py-0.5 (tight), px-2.5 py-1 (normal), px-3 py-1.5 (loose)?
+   ✓ Font: text-xs (12px) with font-medium or font-semibold?
+   ✓ Colors: Status-based (green for success, red for error, blue for info)?
+   ✓ Border: Present or borderless?
+
+7. ICON DETAILS:
+   ✓ Size: 14px, 16px, 18px, 20px, 24px? <Icon size={X} />
+   ✓ Color: Same as adjacent text? Different? Opacity?
+   ✓ Spacing to text: gap-1 (4px), gap-2 (8px), gap-3 (12px)?
+   ✓ Stroke width: Standard or custom?
+
+8. LAYOUT STRUCTURE:
+   ✓ Sidebar width: w-48 (192px), w-60 (240px), w-64 (256px)?
+   ✓ Header height: h-12 (48px), h-14 (56px), h-16 (64px)?
+   ✓ Main content max-width: max-w-4xl, max-w-6xl, max-w-7xl, or full?
+   ✓ Grid columns: 2, 3, 4? Equal width or varied?
+
+9. COLOR USAGE:
+   ✓ Match EXACT rgb() values from extracted palette
+   ✓ Primary text: rgb(30,31,33) or darker/lighter?
+   ✓ Secondary text: rgb(109,110,111) or different shade?
+   ✓ Borders: rgb(230,230,232) or different gray?
+   ✓ Backgrounds: rgb(249,248,248) for page, white for cards?
+
+10. MICRO-INTERACTIONS:
+    ✓ Hover transitions: duration-150, duration-200, duration-300?
+    ✓ Transform on hover: scale-105, -translate-y-0.5?
+    ✓ Opacity changes: hover:opacity-80?
+    ✓ Cursor: cursor-pointer on clickable elements?
+
+CRITICAL: Study the screenshot section by section. Don't miss small details like:
+- Subtle divider lines between sections
+- Meta information (dates, counts, labels)
+- Status indicators (dots, badges, colors)
+- Icon placements and alignments
+- Text overflow handling (truncate vs line-clamp)
+- Hover/focus visual feedback
+
+🔴🔴🔴 TEXT REPLICATION IS MANDATORY 🔴🔴🔴
+
+READ AND COPY ALL TEXT FROM SCREENSHOT:
+
+✅ MUST INCLUDE:
+• Page heading (e.g., "Good morning, Navya" or "My tasks")
+• Section headers ("Recently assigned", "Upcoming", "Projects I'm on")
+• Task/item names (read each one)
+• Button labels ("+ Add Task", "Create project", "Save", "Cancel")
+• Meta info for each item ("Due: Nov 16", "3 subtasks", "Assigned to John")
+• Project names in context ("Project: Frontend Agent")
+• Dates and times ("Today", "Tomorrow", "Nov 18", "2 hours ago")
+• Status labels ("In progress", "Completed", "Overdue")
+• Placeholder text ("Search tasks...", "Task name", "Add description...")
+• Link text ("View all tasks", "See more", "Show completed")
+• Badge/tag text ("urgent", "bug", "frontend", "design")
+• Helper text ("Press Enter to save", "Click to edit")
+• Empty state messages ("No tasks yet. Create your first task!")
+• Section descriptions or instructions
+• Counts ("5 tasks", "12 comments", "3 attachments")
+
+❌ DO NOT:
+• Use generic text like "Task 1", "Item 2" - read the actual text!
+• Paraphrase - if it says "Due: Nov 16" don't write "Due date: November 16"
+• Skip meta information - include ALL dates, counts, labels visible
+• Omit small text - even tiny labels matter
+• Change capitalization - match Title Case, UPPERCASE, lowercase exactly
+
+✅ EXAMPLE OF CORRECT TEXT REPLICATION:
+If screenshot shows:
+  "Design new homepage"
+  "Due: Nov 16 • Project: Frontend Agent • High priority"
+  
+Your code should include:
+  <div className="text-[rgb(30,31,33)] font-medium">Design new homepage</div>
+  <div className="text-[rgb(109,110,111)] text-xs mt-1">
+    Due: Nov 16 • Project: Frontend Agent • High priority
+  </div>
+
+NOT generic like:
+  <div>Task name</div>
+  <div>Due date and project</div>
+`
+        });
+        
         messages[1].content.push({
           type: 'image_url',
           image_url: {
             url: `data:image/png;base64,${base64Image}`,
-            detail: 'high'
+            detail: 'high' // Request high-detail analysis
           }
         });
         
@@ -1209,19 +1476,55 @@ Look at the screenshot and identify:
    ✅ ALWAYS use flex-shrink-0 on Sidebar (takes space):
    ✅ <aside className="w-60 h-screen flex-shrink-0">
 
-7. CONTENT REPLICATION:
-   • Copy EXACT text from screenshot (headings, labels, descriptions)
-   • Maintain same content hierarchy
-   • Include ALL visible elements (don't skip small details)
-   • Replicate button labels precisely
-   • Copy placeholder text in inputs
-   • Include meta information (dates, timestamps, labels)
-   • Copy badge text and colors
-   • Include tooltip text if visible
-   • Replicate breadcrumb trails
-   • Copy any helper text or hints
-   • Include notification counts/badges
-   • Replicate empty state messages
+7. CONTENT REPLICATION (CRITICAL - READ ALL TEXT FROM SCREENSHOT):
+   🔴 MANDATORY: Copy EVERY SINGLE WORD visible in the screenshot
+   
+   ✅ MUST READ AND INCLUDE:
+   • Page title/heading (\"Good morning, Navya\" or \"My tasks\")
+   • Section headers (\"Recently assigned\", \"Upcoming tasks\", \"Projects I'm on\")
+   • Task/item titles - read each one individually (\"Design new homepage\", \"Fix login bug\")
+   • Button labels - exact wording (\"+ Add Task\" not \"Add\", \"Create project\" not \"New\")
+   • Meta information for EACH item:
+     - Dates (\"Due: Nov 16\", \"Today\", \"Tomorrow\", \"Nov 18\")
+     - Project names (\"Project: Frontend Agent\")
+     - Assignees (\"Assigned to: John Doe\")
+     - Counts (\"3 subtasks\", \"5 comments\", \"2 attachments\")
+     - Status (\"In progress\", \"Completed\", \"Overdue\", \"High priority\")
+   • Placeholder text in ALL inputs (\"Search tasks...\", \"Task name\", \"Add a description...\")
+   • Link text (\"View all tasks\", \"See more\", \"Show completed\", \"View project\")
+   • Badge/tag text - read each one (\"urgent\", \"bug\", \"frontend\", \"design\", \"review\")
+   • Helper/hint text (\"Press Enter to save\", \"Click to edit\", \"Drag to reorder\")
+   • Empty state messages (\"No tasks yet. Create your first task!\")
+   • Notification counts (\"5\" in a badge, \"12 unread\")
+   • Breadcrumb text (\"Home > Projects > Frontend Agent\")
+   • Tooltip text if visible
+   
+   ❌ NEVER USE GENERIC PLACEHOLDERS:
+   ✗ \"Task 1\", \"Task 2\", \"Task 3\" - READ THE ACTUAL TASK NAMES
+   ✗ \"Due date\" - should be \"Due: Nov 16\" with actual date
+   ✗ \"Description\" - read the actual description text
+   ✗ \"Button\" - read the actual button label
+   
+   ⚠️ MATCH EXACT WORDING AND FORMATTING:
+   • If screenshot says \"Due: Nov 16 • Project: Frontend\" - copy the dots (•) too
+   • If screenshot says \"+ Add Task\" - include the + symbol
+   • Match capitalization: \"My tasks\" not \"My Tasks\", \"URGENT\" not \"urgent\"
+   • Copy punctuation: \"Task name:\" vs \"Task name\" vs \"Task name...\"
+   
+   📝 EXAMPLE - CORRECT TEXT REPLICATION:
+   If screenshot shows task "Design new homepage" with "Due: Nov 16 • Project: Frontend Agent" etc,
+   your code must include ALL that text exactly, not generic "Task 1" or "Due date".
+   
+   🔍 TEXT READING PROCESS:
+   1. Zoom into screenshot and read TOP TO BOTTOM
+   2. For each section, read the header
+   3. For each item in the section, read:
+      - Main title/name
+      - All meta info below it (dates, projects, assignees)
+      - All badges/tags attached
+      - Any counts or status indicators
+   4. Read all button labels in the section
+   5. Move to next section and repeat
    
 8. INTERACTIVE ELEMENTS:
    • Add useState for any lists/forms

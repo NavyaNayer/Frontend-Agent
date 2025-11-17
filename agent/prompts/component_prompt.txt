@@ -21,6 +21,38 @@ CSS Selector: {{COMPONENT_SELECTOR}}
 🎯 VISUAL FIDELITY IS THE ONLY PRIORITY
 ═══════════════════════════════════════════════════════════════════════════════
 
+🔍 MICRO-DETAIL ANALYSIS CHECKLIST (COMPLETE BEFORE CODING):
+
+Zoom into the screenshot and examine these TINY details:
+☐ Border thickness: 0.5px? 1px? 1.5px? 2px? Use border or border-[0.5px]
+☐ Border color: Light gray? Medium gray? Match exact rgb() from palette
+☐ Corner radius: Sharp (0px)? Subtle (2-4px)? Medium (6-8px)? Rounded (12px+)? Circular (50%)?
+☐ Shadow depth: None? Subtle (shadow-sm)? Standard (shadow)? Elevated (shadow-md/lg)?
+☐ Shadow color: Black? Gray? Colored shadow? Match opacity
+☐ Inner padding: Measure space from border to content (p-2=8px, p-3=12px, p-4=16px, p-5=20px, p-6=24px)
+☐ Gap between child elements: Tight (gap-1=4px)? Normal (gap-2=8px, gap-3=12px)? Loose (gap-4=16px+)?
+☐ Text size: Very small (text-xs=12px)? Small (text-sm=14px)? Normal (text-base=16px)? Large (text-lg=18px+)?
+☐ Text weight: Light (300)? Normal (400)? Medium (500)? Semibold (600)? Bold (700)?
+☐ Text color: Primary black? Dark gray? Medium gray? Light gray? Colored? Match exact rgb()
+☐ Letter spacing: Tight (tracking-tight)? Normal? Wide (tracking-wide)?
+☐ Line height: Tight (leading-tight)? Normal (leading-normal)? Relaxed (leading-relaxed)?
+☐ Icon size: Small (14-16px)? Medium (18-20px)? Large (24px+)? Match relative to text
+☐ Icon positioning: Baseline aligned? Center aligned? Top aligned? Exact gap to text (gap-1, gap-2)?
+☐ Icon color: Same as text? Different? Opacity?
+☐ Badge/tag shape: Pill (rounded-full)? Rounded (rounded-md/lg)? Square (rounded-sm)?
+☐ Badge padding: Tight (px-2 py-0.5)? Normal (px-2.5 py-1)? Loose (px-3 py-1.5)?
+☐ Badge font: Tiny (text-xs)? Small (text-sm)? Weight (font-medium, font-semibold)?
+☐ Hover effects: Background change? Opacity change? Underline? Shadow increase? Color shift?
+☐ Transition speed: Fast (duration-150)? Normal (duration-200)? Slow (duration-300)?
+☐ Focus ring: Present? Color? Width (ring-1, ring-2)?
+☐ Divider lines: Full width? Partial? Thickness? Color? Position (border-t, border-b)?
+☐ Avatar borders: Present? Thickness? Color? Multiple borders (ring-2 ring-white)?
+☐ Truncation: Text cut off with ...? (truncate or line-clamp-2/3)
+☐ Capitalization: All caps (uppercase)? Title case? Lowercase?
+☐ Alignment within element: Left? Center? Right? Space-between? Items-center?
+☐ Flex direction: Row? Column? Wrap?
+☐ Z-index layering: Elements overlap? Which is on top?
+
 MANDATORY REQUIREMENTS:
 
 1. COLOR PRECISION (ZERO TOLERANCE)
