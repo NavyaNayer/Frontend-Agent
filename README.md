@@ -14,8 +14,11 @@ AI-powered agent that automatically clones web applications by analyzing screens
 ## 🚀 Quick Start
 
 ```bash
-# Install dependencies
+# Install dependencies and Playwright browsers
+npm run setup
+# OR manually:
 npm install
+npx playwright install chromium
 
 # Configure environment
 cp env.template .env
