@@ -194,6 +194,8 @@ ICONS:
 
 Your output will be evaluated on PIXEL-PERFECT visual matching. Study the extracted design tokens carefully!
 
+🚨 RESPONSE FORMAT: Return ONLY the code. Start with import, end with export default. NO explanatory text before or after.
+
 Generate clean TypeScript React code with Tailwind CSS utilities.`
       },
       {
@@ -1012,6 +1014,14 @@ function extractCodeFromResponse(response) {
   // Remove markdown code fences
   let code = response.trim();
   
+  // Remove introductory text before the code (e.g., "Here's a TypeScript React component...")
+  // Look for the first import statement which indicates the start of actual code
+  const importMatch = code.match(/^(.*?)(import\s+)/s);
+  if (importMatch) {
+    // Keep everything from the first import onwards
+    code = code.substring(importMatch[1].length);
+  }
+  
   // Remove ```tsx, ```jsx, ```javascript, etc.
   code = code.replace(/^```(?:tsx|jsx|javascript|js|typescript|ts)?\n/gm, '');
   code = code.replace(/\n```$/gm, '');
@@ -1211,16 +1221,28 @@ ICONS: If you see icons/symbols in the screenshot:
 - Size: 16px-24px typically (size={20})
 - Match icon color to surrounding text
 
-Output Format:
-- Return only the TypeScript React component code
-- No explanations before or after the code
-- No markdown headers or bullet lists after the code
-- Code should end with "export default ComponentName;"
-- Do not add any text after the export statement
+🚨 CRITICAL OUTPUT REQUIREMENT 🚨
 
-Example: Code ends with "export default Sidebar;" with no additional content.
+Return ONLY the TypeScript React component code. NO other text.
 
-Return the complete TypeScript React component code only.`;
+❌ DO NOT include:
+- "Here's a TypeScript React component..."
+- "This component..."
+- Any explanatory text before the code
+- Any markdown headers after the code
+- Any bullet lists explaining features
+- Any notes or comments outside the code
+
+✅ Your response must START with:
+import React from 'react';
+
+✅ Your response must END with:
+export default ComponentName;
+
+NO TEXT BEFORE import.
+NO TEXT AFTER export default.
+
+Return ONLY the code.`;
 
   return prompt;
 }
