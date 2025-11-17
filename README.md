@@ -270,6 +270,21 @@ Prompts carefully worded to avoid:
 
 ## 📊 Results
 
+### Visual Comparison
+
+<table>
+<tr>
+<th>Original UI</th>
+<th>Generated UI</th>
+</tr>
+<tr>
+<td><img src="original_ui.png" alt="Original Asana UI" width="400"/></td>
+<td><img src="generated_ui.png" alt="Generated UI" width="400"/></td>
+</tr>
+</table>
+
+### Features
+
 Generated app includes:
 - ✅ 3 pages (Home, Projects, Tasks) + Task Detail pages
 - ✅ Full CRUD on all pages
