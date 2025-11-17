@@ -227,6 +227,22 @@ PAGES_TO_CRAWL=/,/app/home,/app/projects,/app/tasks
 | `npm run validate` | Validate page functionality |
 | `npm test` | Run all test suites |
 
+### Memory Issues
+
+If you encounter JavaScript heap out of memory errors during crawling:
+
+**Windows (PowerShell):**
+```powershell
+$env:NODE_OPTIONS="--max-old-space-size=6144"; npm run crawl
+```
+
+**Mac/Linux:**
+```bash
+NODE_OPTIONS="--max-old-space-size=6144" npm run crawl
+```
+
+This increases Node.js memory limit to 6GB for processing large screenshots and CSS files.
+
 ## 💡 Why This Approach?
 
 ### Vision + Code Generation
