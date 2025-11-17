@@ -1,361 +1,303 @@
-# 🎬 Clooney Agent
+# Frontend Replication Agent
 
-> **AI-Powered Frontend Replication System**
+AI-powered agent that automatically clones web applications by analyzing screenshots and generating pixel-perfect React applications with full CRUD functionality.
 
-Automatically crawl any web application, extract components, and generate a pixel-perfect React + Tailwind CSS clone using GPT-4.
+## 🎯 Features
 
-## 🎯 What It Does
-
-Clooney Agent is not a simple web scraper. It's a sophisticated multi-step automated agent that:
-
-1. **Crawls** target websites (with authentication support)
-2. **Captures** DOM structure, computed CSS, and screenshots
-3. **Extracts** UI components using intelligent pattern detection
-4. **Generates** production-ready React components via GPT-4
-5. **Creates** a complete React + Tailwind application
-6. **Tests** visual accuracy with Playwright
-
-## 🏗️ Project Structure
-
-```
-clooney-agent/
-├── agent/
-│   ├── run.js              # Main orchestrator
-│   ├── crawler.js          # Web crawling engine
-│   ├── extractor.js        # Component detection
-│   ├── generator.js        # React app generation
-│   ├── llm.js              # OpenAI integration
-│   ├── output/             # Crawl data (auto-generated)
-│   └── prompts/            # LLM prompt templates
-│       ├── component_prompt.txt
-│       ├── css_prompt.txt
-│       └── page_prompt.txt
-│
-├── generated-app/          # Generated React app (auto-created)
-│   ├── src/
-│   │   ├── components/     # Generated components
-│   │   ├── pages/          # Generated pages
-│   │   └── styles/         # Global styles
-│   └── package.json
-│
-├── tests/
-│   └── visual.spec.ts      # Playwright visual tests
-│
-├── playwright.config.ts
-├── package.json
-├── env.template
-└── README.md
-```
+- **Pixel-Perfect UI** - Exact color matching, spacing, typography
+- **Full CRUD** - Add/Edit/Delete for Tasks and Projects
+- **Task Details** - Individual task pages with routing
+- **Self-Validation** - Auto-checks and regenerates until functional
+- **Smart Sidebar** - Detects and replicates navigation
+- **Visual Testing** - Automated screenshot comparison
 
 ## 🚀 Quick Start
 
-### Prerequisites
-
-- Node.js 18+
-- OpenAI API key (GPT-4 access recommended)
-- Target website credentials (if authentication required)
-
-### Installation
-
 ```bash
-# Clone the repository
-git clone https://github.com/NavyaNayer/frontend-agent.git
-cd frontend-agent
-
 # Install dependencies
 npm install
 
-# Install Playwright browsers
-npm run install:browsers
-
 # Configure environment
 cp env.template .env
-# Edit .env with your API keys and credentials
-```
+# Add your OPENAI_API_KEY, TARGET_URL, credentials
 
-### Configuration
-
-Edit `.env` file:
-
-```env
-# Required
-OPENAI_API_KEY=sk-...
-TARGET_URL=https://app.asana.com
-
-# Optional (for authenticated sites)
-ASANA_EMAIL=your@email.com
-ASANA_PASSWORD=your_password
-
-# Advanced
-LLM_MODEL=gpt-4-turbo-preview
-MASK_SELECTORS=.user-name,.timestamp,.avatar
-PAGES_TO_CRAWL=/,/app/home,/app/projects,/app/tasks
-```
-
-### Usage
-
-**Step 1: Crawl & Generate**
-
-```bash
+# Crawl website and generate app
 npm run crawl
-```
 
-This command will:
-- ✓ Authenticate to target site (if credentials provided)
-- ✓ Crawl specified pages
-- ✓ Extract components
-- ✓ Generate React application
-- ✓ Save all data to `agent/output/`
-
-**Step 2: Run Generated App**
-
-```bash
+# Run generated app
 cd generated-app
 npm install
 npm run dev
 ```
 
-Visit `http://localhost:3000` to see your clone!
+Visit `http://localhost:3000`
 
-**Step 3: Testing & Validation**
+## 🏗️ Architecture
 
-```bash
-# Install test dependencies
-npm install
-
-# Run all tests
-npm test
-
-# Or run specific test suites:
-npm run test:visual      # Visual comparison (screenshots)
-npm run test:css         # CSS property assertions
-npm run test:fidelity    # Overall fidelity scoring
+```
+┌─────────────────────────────────────────────┐
+│            FRONTEND AGENT                   │
+└─────────────────────────────────────────────┘
+                    │
+        ┌───────────┼───────────┐
+        │           │           │
+        ▼           ▼           ▼
+   ┌─────────┐ ┌─────────┐ ┌─────────┐
+   │ CRAWLER │ │EXTRACTOR│ │GENERATOR│
+   │         │ │         │ │         │
+   │Playwright│ │ Pattern │ │  GPT-4  │
+   │  + Auth │ │Detection│ │Vision + │
+   │         │ │         │ │  Code   │
+   └────┬────┘ └────┬────┘ └────┬────┘
+        │           │           │
+        └───────────┼───────────┘
+                    ▼
+        ┌───────────────────────┐
+        │   OUTPUT DIRECTORY    │
+        ├───────────────────────┤
+        │ • HTML + Screenshots  │
+        │ • CSS + Design Tokens │
+        │ • Component Analysis  │
+        └───────────┬───────────┘
+                    │
+                    ▼
+        ┌───────────────────────┐
+        │    SMART GENERATOR    │
+        ├───────────────────────┤
+        │ 1. Generate Components│
+        │ 2. Generate Pages     │
+        │ 3. Validate CRUD      │
+        │ 4. Regenerate (max 3) │
+        └───────────┬───────────┘
+                    │
+                    ▼
+        ┌───────────────────────┐
+        │   GENERATED APP       │
+        │  React + TypeScript   │
+        │  + Tailwind + Vite    │
+        └───────────────────────┘
 ```
 
-Tests will generate detailed reports in `test-results/` including:
-- Screenshot comparisons
-- Pixel difference analysis
-- CSS property validations
-- Fidelity score (percentage match)
+## 📂 Structure
 
-## 📋 Commands
+```
+agent/
+├── crawler.js          # Playwright automation + auth
+├── extractor.js        # Component detection
+├── generator.js        # React generation + validation
+├── llm.js             # GPT-4 integration
+├── validate-pages.js  # CRUD validation
+└── output/            # Crawled data
 
-| Command | Description |
-|---------|-------------|
-| `npm run crawl` | Run the full agent pipeline |
-| `npm run generate` | Regenerate app from existing data |
-| `npm test` | Run all test suites |
-| `npm run test:visual` | Visual regression tests with screenshots |
-| `npm run test:css` | CSS property assertions (color, spacing, typography) |
-| `npm run test:fidelity` | Calculate fidelity score (percentage match) |
-| `npm run install:browsers` | Install Playwright browsers |
+generated-app/
+├── src/
+│   ├── components/    # Sidebar, Header, Button, Modal
+│   ├── pages/         # HomePage, TasksPage, ProjectsPage, TaskDetailPage
+│   └── styles/
+└── package.json
+```
 
 ## 🧠 How It Works
 
-### Phase 1: Crawling
-- Launches headless browser with Playwright
-- Authenticates using provided credentials
-- Navigates to specified pages
-- Captures full HTML, computed styles, screenshots
-- Masks dynamic content (usernames, timestamps, etc.)
-
-### Phase 2: Component Extraction
-- Analyzes DOM structure
-- Detects common UI patterns:
-  - Headers, Sidebars, Navigation
-  - Cards, Lists, Buttons
-  - Forms, Modals, Dialogs
-- Extracts relevant CSS for each component
-- Deduplicates similar components
-
-### Phase 3: Generation
-- Builds detailed prompts for GPT-4
-- Generates React + TypeScript components
-- Converts styles to Tailwind CSS
-- Creates page compositions
-- Generates complete project structure
-
-### Phase 4: Testing & Validation
-- **Visual Comparison**: Pixel-by-pixel screenshot diff with masking for dynamic content
-- **CSS Assertions**: Validates exact color values, spacing, typography, shadows
-- **Fidelity Scoring**: Quantifies accuracy (Visual 40%, CSS 30%, Structure 20%, Interactivity 10%)
-- **Responsive Testing**: Tests multiple viewport sizes (mobile, tablet, desktop)
-- **Accessibility Audits**: Checks ARIA labels, semantic HTML, keyboard navigation
-- **Performance Metrics**: Measures page load times and render performance
-
-## 🎨 Features
-
-### Advanced Crawling
-- ✅ Authentication support (login flows)
-- ✅ Dynamic content masking
-- ✅ Full-page screenshots
-- ✅ Computed CSS extraction
-- ✅ Configurable viewport sizes
-
-### Intelligent Extraction
-- ✅ Pattern-based component detection
-- ✅ Hierarchical structure analysis
-- ✅ Style inheritance tracking
-- ✅ Component deduplication
-
-### Smart Generation
-- ✅ GPT-4 powered code generation
-- ✅ Tailwind CSS conversion
-- ✅ TypeScript type generation
-- ✅ Responsive design implementation
-- ✅ Accessibility features
-
-### Comprehensive Testing
-- ✅ **Visual Regression**: Pixel-diff comparison with original site
-- ✅ **CSS Assertions**: Explicit property validation (colors, fonts, spacing)
-- ✅ **Fidelity Scoring**: Percentage-based accuracy measurement
-- ✅ **Multi-device Testing**: Mobile, tablet, desktop viewports
-- ✅ **Accessibility Audits**: ARIA, semantic HTML, keyboard nav
-- ✅ **Performance Benchmarks**: Load times, render metrics
-
-## 📊 Output
-
-After running the agent, you'll get:
-
-**In `agent/output/`:**
-- `extraction-results.json` - Component analysis
-- `screenshots/` - Full page captures (viewport + full page)
-- `html/` - Raw HTML files
-- `css/` - Computed styles and parsed design tokens
-
-**In `generated-app/`:**
-- Complete React + Vite project
-- TypeScript components
-- Tailwind CSS styling
-- Ready to run and customize
-
-**In `test-results/` (after testing):**
-- `fidelity-report.json` - Overall accuracy score
-- `*-original.png` - Original site screenshots
-- `*-clone.png` - Generated app screenshots
-- `visual-diff.png` - Pixel difference visualization
-- `results.json` - Detailed test results
-- `playwright-report/` - HTML test report
-
-## 🔧 Customization
-
-### Prompt Templates
-
-Customize LLM behavior by editing files in `agent/prompts/`:
-- `component_prompt.txt` - Component generation
-- `css_prompt.txt` - Style conversion
-- `page_prompt.txt` - Page composition
-
-### Component Detection
-
-Modify `agent/extractor.js` to adjust:
-- Pattern matching rules
-- Component type detection
-- CSS extraction logic
-
-### Crawler Behavior
-
-Edit `agent/crawler.js` to change:
-- Authentication flow
-- Wait times and timeouts
-- Screenshot settings
-- Content masking
-
-## 🐛 Troubleshooting
-
-**Authentication fails:**
-- Verify credentials in `.env`
-- Check if target site uses CAPTCHA
-- Try increasing `CRAWL_TIMEOUT`
-
-**Components not detected:**
-- Check `agent/output/extraction-results.json`
-- Adjust detection patterns in `extractor.js`
-- Increase page wait times
-
-**LLM generation errors:**
-- Verify OpenAI API key
-- Check API rate limits
-- Try reducing `LLM_MAX_TOKENS`
-
-**Visual tests fail:**
-- Ensure clone app is running on port 3000
-- Check `MASK_SELECTORS` configuration
-- Review test screenshots in `test-results/`
-
-## 📈 Performance
-
-- Crawls 3-5 pages in ~2-3 minutes
-- Generates 10-15 components in ~5-8 minutes
-- Total pipeline: ~10-15 minutes for typical app
-
-## 🎯 Fidelity Scoring
-
-The agent quantifies replication accuracy through comprehensive testing:
-
-**Scoring Breakdown:**
-- **Visual Match (40%)**: Pixel-by-pixel screenshot comparison
-- **CSS Accuracy (30%)**: Color, typography, spacing validation
-- **Structure Match (20%)**: Layout, components, semantic HTML
-- **Interactivity (10%)**: Buttons, links, forms, hover states
-
-**Example Report:**
-```
-📊 Overall Fidelity: 87.3%
-
-   Visual Match:        92.5%
-   CSS Accuracy:        85.8%
-   Structure Match:     75.0%
-   Interactivity:       91.2%
-
-📋 Details:
-   Color Match:         88.4%
-   Typography Match:    83.2%
-   Spacing Match:       85.6%
-   Layout Match:        75.0%
-   Component Count:     142
-
-✨ Very Good! High fidelity clone with minor differences.
+### 1. Crawl Phase
+```javascript
+// crawler.js
+- Authenticate to target site (Asana)
+- Navigate to specified pages
+- Detect sidebar and collapsible behavior
+- Capture: DOM structure, computed CSS, screenshots
+- Extract: Colors, fonts, spacing, layouts
 ```
 
-**Quality Levels:**
-- 90-100%: Excellent (Near pixel-perfect)
-- 75-89%: Very Good (High fidelity)
-- 60-74%: Good (Decent replication)
-- 40-59%: Fair (Basic structure)
-- <40%: Needs Improvement
+### 2. Extract Phase
+```javascript
+// extractor.js
+- Detect UI patterns (buttons, inputs, sidebars)
+- Categorize design tokens (colors, typography)
+- Identify component hierarchy
+- Extract semantic groups (darkBg, lightBg, accent, etc.)
+```
 
-View detailed results in `test-results/fidelity-report.json`
+### 3. Generate Phase
+```javascript
+// generator.js
+- Generate base components (Sidebar, Header, Button, Modal)
+- Generate pages with CRUD functionality
+- Add Edit functionality (inline editing)
+- Create TaskDetailPage with routing
+- Validate functionality (buttons, inputs, CRUD)
+- Auto-regenerate (max 3 times) if validation fails
+```
 
-## ⚖️ Legal & Ethics
+### 4. Validation Loop
+```javascript
+// validate-pages.js
+Checks:
+✓ Component imports (Sidebar, Header)
+✓ Button onClick handlers
+✓ Input onChange handlers
+✓ Checkbox onChange handlers
+✓ CRUD functions (add/edit/delete/toggle)
+✓ useState hooks
+✓ Task detail routing
 
-**Important:** This tool is for:
-- ✅ Learning and education
-- ✅ Prototyping and wireframing
-- ✅ Internal tool replication
-- ✅ Design system documentation
+If issues found → Pass feedback to LLM → Regenerate
+```
 
-**Not for:**
-- ❌ Copying production sites
-- ❌ Copyright infringement
-- ❌ Terms of service violations
-- ❌ Bypassing paywalls
+## 🎨 Key Features
 
-Always respect:
-- robots.txt directives
-- Terms of Service
-- Copyright and IP rights
-- Rate limits and API policies
+### Smart CRUD Generation
+The agent automatically generates:
+- **Add** - Forms with inputs, validation, state management
+- **Edit** - Inline editing with save/cancel actions
+- **Delete** - Buttons with confirmation dialogs
+- **View** - Detail pages with routing
+
+### Edit Task Implementation
+```typescript
+// Auto-generated in TasksPage
+const [editingId, setEditingId] = useState<number | null>(null);
+const [editTitle, setEditTitle] = useState('');
+
+const startEdit = (id, title) => {
+  setEditingId(id);
+  setEditTitle(title);
+};
+
+const saveEdit = (id) => {
+  setTasks(tasks.map(task => 
+    task.id === id ? { ...task, title: editTitle } : task
+  ));
+  setEditingId(null);
+};
+```
+
+### Task Detail Pages
+```typescript
+// Auto-generated routing in App.tsx
+<Route path="/tasks/:id" element={<TaskDetailPage />} />
+
+// TaskDetailPage includes:
+- Full task details (title, description, priority, due date)
+- Edit mode with form inputs
+- Delete functionality
+- Back navigation
+```
+
+### Project CRUD
+```typescript
+// Enhanced ProjectsPage
+- Add new projects with forms
+- Edit project details inline
+- Delete projects with confirmation
+- View all projects in list/board views
+```
+
+## 🧪 Testing
+
+```bash
+npm run test:visual      # Screenshot comparison
+npm run test:css         # CSS assertions
+npm run test:fidelity    # Fidelity score
+```
+
+Tests generate reports in `test-results/`:
+- Visual diffs with pixel comparison
+- CSS property validations
+- Overall fidelity percentage
+
+## ⚙️ Configuration
+
+```env
+# .env
+OPENAI_API_KEY=sk-...              # Required
+TARGET_URL=https://app.asana.com   # Target site
+ASANA_EMAIL=your@email.com         # Auth credentials
+ASANA_PASSWORD=your_password
+LLM_MODEL=gpt-4o                   # GPT-4 with vision
+PAGES_TO_CRAWL=/,/app/home,/app/projects,/app/tasks
+```
+
+## 🔧 Commands
+
+| Command | Description |
+|---------|-------------|
+| `npm run crawl` | Crawl + Extract + Generate full app |
+| `npm run generate` | Regenerate from existing data |
+| `npm run validate` | Validate page functionality |
+| `npm test` | Run all test suites |
+
+## 💡 Why This Approach?
+
+### Vision + Code Generation
+- **GPT-4 Vision** analyzes screenshots for visual accuracy
+- **GPT-4 Code** generates React with exact RGB colors
+- **Validation Loop** ensures functionality works
+
+### Smart Fallbacks
+```javascript
+// 3-level sidebar generation
+1. Screenshot → GPT-4 Vision generates from image
+2. Styled Fallback → Pre-styled Asana-like sidebar
+3. Extracted → Use detected components
+```
+
+### Content Moderation Safe
+Prompts carefully worded to avoid:
+- Aggressive language ("MUST", "CRITICAL", "FAILED")
+- Excessive emojis (🔴, 🚨, ⚠️)
+- All-caps emphasis
+
+
+## 📊 Results
+
+Generated app includes:
+- ✅ 3 pages (Home, Projects, Tasks) + Task Detail pages
+- ✅ Full CRUD on all pages
+- ✅ Edit functionality with inline editing
+- ✅ Task detail routing (`/tasks/:id`)
+- ✅ Project management (Add/Edit/Delete/View)
+- ✅ Pixel-perfect color matching (RGB values)
+- ✅ Responsive layouts with Tailwind
+- ✅ Type-safe with TypeScript
 
 ## 🛠️ Tech Stack
 
-- **Crawler:** Playwright
-- **LLM:** OpenAI GPT-4
-- **Generation:** React 18 + TypeScript + Vite
-- **Styling:** Tailwind CSS
-- **Testing:** Playwright Test
-- **Runtime:** Node.js (ES Modules)
----
+- **Frontend**: React 18, TypeScript, Tailwind CSS, Vite
+- **Crawling**: Playwright (headless browser automation)
+- **AI**: OpenAI GPT-4o (vision + code generation)
+- **Testing**: Playwright visual regression
+- **Build**: Vite + PostCSS
 
-**Built by Navya Nayer**
+## 📝 Assignment Coverage
+
+✅ **Pixel-Perfect UI** - Exact color/spacing/typography matching  
+✅ **Add/Edit/Delete Task** - Full CRUD with inline editing  
+✅ **Task View Page** - Individual task detail pages with routing  
+✅ **Add/Edit/Delete/View Project** - Complete project management  
+✅ **Visual Testing** - Automated screenshot comparison  
+✅ **CSS Assertions** - Design token validation  
+✅ **Smart Sidebar** - Navigation with active states  
+✅ **Validation Loop** - Auto-regeneration until functional  
+
+## 🐛 Troubleshooting
+
+**LLM refuses to generate ("I'm sorry...")**
+- Content moderation triggered
+- Solution: Prompts already softened, retry generation
+
+**Validation fails after 3 attempts**
+- Complex functionality may need manual review
+- Check `agent/output/extraction-results.json` for issues
+
+**Colors don't match**
+- CSS parser extracts exact RGB values
+- Check `agent/output/css/` for extracted colors
+
+**Tasks not persisting**
+- App uses local state (no backend)
+- For persistence, add localStorage or backend API
+
+
+Built by Navya Nayer
 

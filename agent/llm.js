@@ -1229,7 +1229,107 @@ Look at the screenshot and identify:
    • All inputs need value + onChange
    • Use .map() for lists - NEVER hardcode items
 
-9. MICRO-DETAILS TO INCLUDE:
+9. FULL CRUD FUNCTIONALITY (MANDATORY):
+   
+   🔴 TASK PAGES - COMPLETE CRUD OPERATIONS:
+   ✅ ADD TASK: Button with onClick handler + addTask() function
+   ✅ EDIT TASK: Inline editing or Edit button for each task
+      \`\`\`tsx
+      const [editingId, setEditingId] = useState<number | null>(null);
+      const [editTitle, setEditTitle] = useState('');
+      
+      const startEdit = (id: number, currentTitle: string) => {
+        setEditingId(id);
+        setEditTitle(currentTitle);
+      };
+      
+      const saveEdit = (id: number) => {
+        setTasks(tasks.map(t => t.id === id ? { ...t, title: editTitle } : t));
+        setEditingId(null);
+      };
+      
+      // In JSX:
+      {editingId === task.id ? (
+        <input value={editTitle} onChange={(e) => setEditTitle(e.target.value)} />
+      ) : (
+        <span>{task.title}</span>
+      )}
+      <button onClick={() => startEdit(task.id, task.title)}>Edit</button>
+      \`\`\`
+   ✅ DELETE TASK: Delete button for each task + deleteTask() function
+   ✅ VIEW TASK: Click task to navigate to detail page
+      \`\`\`tsx
+      import { useNavigate } from 'react-router-dom';
+      const navigate = useNavigate();
+      
+      <div onClick={() => navigate(\`/tasks/\${task.id}\`)}>
+        {task.title}
+      </div>
+      \`\`\`
+   
+   🔴 PROJECT PAGES - COMPLETE CRUD OPERATIONS:
+   ✅ ADD PROJECT: Button to create new project
+   ✅ EDIT PROJECT: Edit button for each project
+   ✅ DELETE PROJECT: Delete button for each project
+   ✅ VIEW PROJECT: Click to view project details
+      \`\`\`tsx
+      const [projects, setProjects] = useState([...]);
+      
+      const addProject = () => {
+        const name = prompt('Project name:');
+        if (name) setProjects([...projects, { id: Date.now(), name, tasks: [] }]);
+      };
+      
+      const editProject = (id: number) => {
+        const project = projects.find(p => p.id === id);
+        const newName = prompt('New name:', project?.name);
+        if (newName) setProjects(projects.map(p => p.id === id ? { ...p, name: newName } : p));
+      };
+      
+      const deleteProject = (id: number) => {
+        if (confirm('Delete this project?')) {
+          setProjects(projects.filter(p => p.id !== id));
+        }
+      };
+      \`\`\`
+   
+   🔴 TASK DETAIL PAGE REQUIREMENTS:
+   If page is "/tasks/:id" or shows individual task details:
+   ✅ Create separate TaskDetailPage component
+   ✅ Show full task information (title, description, due date, assignee, project, priority, tags)
+   ✅ Edit mode with form fields
+   ✅ Save button to update task
+   ✅ Delete button with confirmation
+   ✅ Back button to return to task list
+      \`\`\`tsx
+      import { useParams, useNavigate } from 'react-router-dom';
+      
+      const TaskDetailPage: React.FC = () => {
+        const { id } = useParams<{ id: string }>();
+        const navigate = useNavigate();
+        const [isEditing, setIsEditing] = useState(false);
+        
+        return (
+          <div>
+            <button onClick={() => navigate('/tasks')}>← Back</button>
+            {isEditing ? (
+              <div>
+                <input value={title} onChange={(e) => setTitle(e.target.value)} />
+                <button onClick={handleSave}>Save</button>
+              </div>
+            ) : (
+              <div>
+                <h1>{task.title}</h1>
+                <button onClick={() => setIsEditing(true)}>Edit Task</button>
+                <button onClick={handleDelete}>Delete Task</button>
+              </div>
+            )}
+          </div>
+        );
+      };
+      \`\`\`
+
+10. MICRO-DETAILS TO INCLUDE:
    • Hover states: hover:bg-opacity-80 hover:underline
    • Transitions: transition-all duration-200 ease-in-out
    • Focus states: focus:ring-2 focus:ring-[rgb(63,106,196)]

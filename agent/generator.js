@@ -460,17 +460,22 @@ function validatePageFunctionality(code, filename) {
   }
   
   // Check for CRUD operations
-  const hasCRUDButtons = code.match(/Add|Create|Delete|Remove/i);
+  const hasCRUDButtons = code.match(/Add|Create|Delete|Remove|Edit/i);
   if (hasCRUDButtons) {
-    const hasAddFunction = code.includes('addTask') || code.includes('addItem');
-    const hasDeleteFunction = code.includes('deleteTask') || code.includes('deleteItem');
+    const hasAddFunction = code.includes('addTask') || code.includes('addItem') || code.includes('addProject');
+    const hasDeleteFunction = code.includes('deleteTask') || code.includes('deleteItem') || code.includes('deleteProject');
     const hasToggleFunction = code.includes('toggleTask') || code.includes('toggleItem');
+    const hasEditFunction = code.includes('editTask') || code.includes('editItem') || code.includes('editProject') || 
+                           code.includes('startEdit') || code.includes('saveEdit') || code.includes('setEditingId');
     
     if (!hasAddFunction && code.match(/Add|Create/i)) {
       issues.push('Add/Create button without add function');
     }
     if (!hasDeleteFunction && code.match(/Delete|Remove/i)) {
       issues.push('Delete/Remove button without delete function');
+    }
+    if (!hasEditFunction && code.match(/Edit/i)) {
+      issues.push('Edit button without edit functionality (missing editTask/startEdit/saveEdit)');
     }
     if (hasCheckboxes && !hasToggleFunction) {
       issues.push('Checkboxes without toggle function');
@@ -482,6 +487,28 @@ function validatePageFunctionality(code, filename) {
     issues.push('Interactive elements without useState');
   }
   
+  // Check for task list pages - should have navigation to detail pages
+  if (filename.includes('Task') && code.includes('tasks.map') && !code.includes('useNavigate')) {
+    issues.push('Task list page missing navigation to task detail pages (needs useNavigate)');
+  }
+  
+  // Check for project pages - should have full CRUD
+  if (filename.includes('Project') && code.includes('project')) {
+    const hasProjectAdd = code.includes('addProject');
+    const hasProjectEdit = code.includes('editProject');
+    const hasProjectDelete = code.includes('deleteProject');
+    
+    if (!hasProjectAdd) {
+      issues.push('Project page missing Add Project functionality');
+    }
+    if (!hasProjectEdit) {
+      issues.push('Project page missing Edit Project functionality');
+    }
+    if (!hasProjectDelete) {
+      issues.push('Project page missing Delete Project functionality');
+    }
+  }
+  
   return issues;
 }
 
@@ -491,10 +518,16 @@ function validatePageFunctionality(code, filename) {
 async function generatePages(crawlData, components) {
   const pagesDir = path.join(GENERATED_APP_DIR, 'src', 'pages');
   const MAX_RETRIES = 3;
+  let hasTasksPage = false;
 
   for (const pageData of crawlData) {
     const filename = getPageFilename(pageData.path, pageData.title);
     const filepath = path.join(pagesDir, filename);
+    
+    if (filename === 'TasksPage.tsx') {
+      hasTasksPage = true;
+    }
+    
     let retries = 0;
     let success = false;
     let previousIssues = null;
@@ -537,6 +570,225 @@ async function generatePages(crawlData, components) {
       }
     }
   }
+  
+  // Generate TaskDetailPage if tasks page was created
+  if (hasTasksPage) {
+    console.log(chalk.blue('   📄 Generating TaskDetailPage...'));
+    await generateTaskDetailPage(pagesDir, components);
+  }
+}
+
+/**
+ * Generate TaskDetailPage for individual task viewing/editing
+ */
+async function generateTaskDetailPage(pagesDir, components) {
+  const code = `import React, { useState } from 'react';
+import { Header, Sidebar } from '../components';
+import { useParams, useNavigate } from 'react-router-dom';
+
+const TaskDetailPage: React.FC = () => {
+  const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
+  
+  const [task, setTask] = useState({
+    id: parseInt(id || '1'),
+    title: 'Sample Task',
+    completed: false,
+    section: 'Recently assigned',
+    dueDate: 'Today',
+    project: 'Project Name',
+    description: 'Task description with full details about what needs to be accomplished.',
+    assignee: 'You',
+    priority: 'Medium',
+    tags: ['frontend', 'ui']
+  });
+
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedTitle, setEditedTitle] = useState(task.title);
+  const [editedDescription, setEditedDescription] = useState(task.description);
+  const [editedDueDate, setEditedDueDate] = useState(task.dueDate);
+  const [editedPriority, setEditedPriority] = useState(task.priority);
+
+  const handleSave = () => {
+    setTask({
+      ...task,
+      title: editedTitle,
+      description: editedDescription,
+      dueDate: editedDueDate,
+      priority: editedPriority
+    });
+    setIsEditing(false);
+  };
+
+  const handleDelete = () => {
+    if (window.confirm('Are you sure you want to delete this task?')) {
+      navigate('/tasks');
+    }
+  };
+
+  const toggleComplete = () => {
+    setTask({ ...task, completed: !task.completed });
+  };
+
+  return (
+    <div className="flex h-screen bg-[rgb(249,248,248)]">
+      <Sidebar />
+      <div className="flex-1 flex flex-col">
+        <Header />
+        <main className="flex-1 overflow-auto p-8">
+          <div className="max-w-4xl mx-auto">
+            <button 
+              onClick={() => navigate('/tasks')} 
+              className="text-[rgb(63,106,196)] text-sm hover:underline mb-4 cursor-pointer"
+            >
+              ← Back to My tasks
+            </button>
+
+            <div className="bg-white rounded-lg shadow p-6">
+              <div className="flex items-center gap-3 mb-6">
+                <input 
+                  type="checkbox" 
+                  checked={task.completed} 
+                  onChange={toggleComplete}
+                  className="w-5 h-5 cursor-pointer" 
+                />
+                {isEditing ? (
+                  <input
+                    type="text"
+                    value={editedTitle}
+                    onChange={(e) => setEditedTitle(e.target.value)}
+                    className="flex-1 text-2xl font-semibold text-[rgb(30,31,33)] border border-[rgb(63,106,196)] rounded px-2 py-1 focus:outline-none"
+                  />
+                ) : (
+                  <h1 className={\`text-2xl font-semibold \${task.completed ? 'line-through text-[rgb(109,110,111)]' : 'text-[rgb(30,31,33)]'}\`}>
+                    {task.title}
+                  </h1>
+                )}
+              </div>
+
+              <div className="grid grid-cols-2 gap-6 mb-6">
+                <div>
+                  <label className="text-[rgb(109,110,111)] text-sm mb-1 block">Assignee</label>
+                  <div className="text-[rgb(30,31,33)] text-sm">{task.assignee}</div>
+                </div>
+                <div>
+                  <label className="text-[rgb(109,110,111)] text-sm mb-1 block">Due Date</label>
+                  {isEditing ? (
+                    <input
+                      type="text"
+                      value={editedDueDate}
+                      onChange={(e) => setEditedDueDate(e.target.value)}
+                      className="w-full text-[rgb(30,31,33)] text-sm border border-[rgb(230,230,232)] rounded px-2 py-1 focus:outline-none focus:border-[rgb(63,106,196)]"
+                    />
+                  ) : (
+                    <div className="text-[rgb(30,31,33)] text-sm">{task.dueDate}</div>
+                  )}
+                </div>
+                <div>
+                  <label className="text-[rgb(109,110,111)] text-sm mb-1 block">Project</label>
+                  <div className="text-[rgb(30,31,33)] text-sm">{task.project}</div>
+                </div>
+                <div>
+                  <label className="text-[rgb(109,110,111)] text-sm mb-1 block">Priority</label>
+                  {isEditing ? (
+                    <select
+                      value={editedPriority}
+                      onChange={(e) => setEditedPriority(e.target.value)}
+                      className="w-full text-[rgb(30,31,33)] text-sm border border-[rgb(230,230,232)] rounded px-2 py-1 focus:outline-none focus:border-[rgb(63,106,196)]"
+                    >
+                      <option value="Low">Low</option>
+                      <option value="Medium">Medium</option>
+                      <option value="High">High</option>
+                    </select>
+                  ) : (
+                    <div className={\`text-sm inline-block px-2 py-1 rounded \${
+                      task.priority === 'High' ? 'bg-[rgb(255,235,230)] text-[rgb(233,58,70)]' :
+                      task.priority === 'Medium' ? 'bg-[rgb(255,249,219)] text-[rgb(241,189,108)]' :
+                      'bg-[rgb(228,245,237)] text-[rgb(70,183,123)]'
+                    }\`}>
+                      {task.priority}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="mb-6">
+                <label className="text-[rgb(109,110,111)] text-sm mb-2 block">Description</label>
+                {isEditing ? (
+                  <textarea
+                    value={editedDescription}
+                    onChange={(e) => setEditedDescription(e.target.value)}
+                    rows={4}
+                    className="w-full text-[rgb(30,31,33)] text-sm border border-[rgb(230,230,232)] rounded px-3 py-2 focus:outline-none focus:border-[rgb(63,106,196)]"
+                  />
+                ) : (
+                  <div className="text-[rgb(30,31,33)] text-sm whitespace-pre-wrap">{task.description}</div>
+                )}
+              </div>
+
+              <div className="mb-6">
+                <label className="text-[rgb(109,110,111)] text-sm mb-2 block">Tags</label>
+                <div className="flex gap-2">
+                  {task.tags.map((tag, index) => (
+                    <span key={index} className="bg-[rgb(230,230,232)] text-[rgb(30,31,33)] text-xs px-3 py-1 rounded-full">
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3 pt-4 border-t border-[rgb(230,230,232)]">
+                {isEditing ? (
+                  <>
+                    <button 
+                      onClick={handleSave}
+                      className="bg-[rgb(63,106,196)] text-white px-4 py-2 rounded text-sm hover:bg-[rgb(50,85,160)] cursor-pointer"
+                    >
+                      Save Changes
+                    </button>
+                    <button 
+                      onClick={() => {
+                        setIsEditing(false);
+                        setEditedTitle(task.title);
+                        setEditedDescription(task.description);
+                        setEditedDueDate(task.dueDate);
+                        setEditedPriority(task.priority);
+                      }}
+                      className="text-[rgb(109,110,111)] px-4 py-2 text-sm hover:text-[rgb(30,31,33)] cursor-pointer"
+                    >
+                      Cancel
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <button 
+                      onClick={() => setIsEditing(true)}
+                      className="bg-[rgb(63,106,196)] text-white px-4 py-2 rounded text-sm hover:bg-[rgb(50,85,160)] cursor-pointer"
+                    >
+                      Edit Task
+                    </button>
+                    <button 
+                      onClick={handleDelete}
+                      className="bg-[rgb(233,58,70)] text-white px-4 py-2 rounded text-sm hover:bg-[rgb(200,50,60)] cursor-pointer"
+                    >
+                      Delete Task
+                    </button>
+                  </>
+                )}
+              </div>
+            </div>
+          </div>
+        </main>
+      </div>
+    </div>
+  );
+};
+
+export default TaskDetailPage;`;
+
+  const filepath = path.join(pagesDir, 'TaskDetailPage.tsx');
+  await fs.writeFile(filepath, code, 'utf-8');
+  console.log(chalk.green('   ✓ TaskDetailPage.tsx (auto-generated)'));
 }
 
 /**
@@ -826,11 +1078,17 @@ async function generateAppTsx() {
     let routePath = '/';
     
     if (name.includes('Projects')) routePath = '/projects';
-    else if (name.includes('Tasks')) routePath = '/tasks';
+    else if (name.includes('Tasks') && !name.includes('Detail')) routePath = '/tasks';
     else if (name === 'HomePage') routePath = '/';
     
     return `        <Route path="${routePath}" element={<${name} />} />`;
   }).join('\n');
+  
+  // Add task detail route if TaskDetailPage exists
+  const hasTaskDetailPage = pages.some(f => f.includes('TaskDetail'));
+  const taskDetailRoute = hasTaskDetailPage 
+    ? `        <Route path="/tasks/:id" element={<TaskDetailPage />} />`
+    : '';
   
   const code = `import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
@@ -842,6 +1100,7 @@ const App: React.FC = () => {
     <Router>
       <Routes>
 ${routes}
+${taskDetailRoute}
       </Routes>
     </Router>
   );
