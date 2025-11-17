@@ -7,6 +7,7 @@
   "scripts": {
     "crawl": "node agent/run.js",
     "generate": "node agent/regenerate.js",
+    "validate": "node validate-pages.js",
     "test:visual": "playwright test tests/visual.spec.ts",
     "test:css": "playwright test tests/css-assertions.spec.ts",
     "test:fidelity": "playwright test tests/fidelity.spec.ts",

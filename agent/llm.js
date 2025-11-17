@@ -295,16 +295,21 @@ COLOR SYSTEM (Use EXACT rgb values from "KEY COLORS" in prompt):
 - Warning banner: bg-[rgb(241,189,108)]
 ❌ NEVER use gray-100, blue-500, or generic Tailwind colors
 
-LAYOUT STRUCTURE:
+LAYOUT STRUCTURE (MANDATORY - USE COMPONENTS):
 <div className="flex h-screen bg-[rgb(249,248,248)]">
-  <Sidebar />
+  <Sidebar />  {/* ✅ ALWAYS use component - NEVER create inline sidebar */}
   <div className="flex-1 flex flex-col">
-    <Header />
+    <Header />  {/* ✅ ALWAYS use component - NEVER create inline header */}
     <main className="flex-1 overflow-auto p-8">
       {/* Content */}
     </main>
   </div>
 </div>
+
+⛔ FORBIDDEN - DO NOT CREATE THESE:
+❌ <div className="w-60 bg-[rgb(46,46,48)]">Home, My tasks, Inbox</div>  // NO inline sidebar!
+❌ <header className="h-12">...</header>  // NO inline header!
+✅ USE: <Sidebar /> and <Header /> components instead!
 
 SPACING:
 - Header height: h-12 (48px)
@@ -910,10 +915,12 @@ MANDATORY REQUIREMENTS:
    - Match exact widths, heights, positioning from screenshot
    - Account for fixed/sticky positioning
 
-3. COMPONENT IMPORTS
-   - Import from '../components': \`import { Header, Sidebar, Button } from '../components';\`
-   - Use all relevant components that match what you see in the screenshot
-   - Components are already styled - just arrange them properly
+3. COMPONENT IMPORTS (CRITICAL - DO NOT CREATE INLINE COMPONENTS)
+   - ALWAYS import and use the Sidebar component: \`import { Header, Sidebar } from '../components';\`
+   - NEVER create inline sidebar divs like <div className="w-60 bg-...">
+   - The Sidebar component is pre-built with all navigation - just use <Sidebar />
+   - Same for Header - ALWAYS use <Header /> component, never create inline headers
+   - Components are fully styled and functional - just import and use them
 
 4. CONTENT
    - Include ALL text content visible in the screenshot
@@ -934,18 +941,26 @@ MANDATORY REQUIREMENTS:
    - Clean, readable code
    - No placeholder content - use what's in the screenshot
 
+CRITICAL LAYOUT RULES:
+⛔ NEVER create inline sidebars like: <div className="w-60 bg-[rgb(46,46,48)]">Home</div>
+✅ ALWAYS use component: <Sidebar />
+⛔ NEVER create inline headers like: <header className="h-12">...</header>
+✅ ALWAYS use component: <Header />
+
+These components are pre-built, fully styled, and include all navigation!
+
 EXAMPLE STRUCTURE:
 \`\`\`tsx
 import React from 'react';
-import { Header, Sidebar, Button } from '../components';
+import { Header, Sidebar } from '../components';
 
 const ${pageName}Page: React.FC = () => {
   return (
-    <div className="flex h-screen bg-gray-50">
+    <div className="flex h-screen bg-[rgb(249,248,248)]">
       <Sidebar />
       <div className="flex-1 flex flex-col">
         <Header />
-        <main className="flex-1 overflow-auto pt-16 px-8">
+        <main className="flex-1 overflow-auto p-8">
           {/* Replicate EXACT content from screenshot */}
         </main>
       </div>

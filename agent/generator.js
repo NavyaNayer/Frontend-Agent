@@ -66,8 +66,8 @@ async function setupAppStructure() {
 async function generateComponents(components, crawlData) {
   const componentsDir = path.join(GENERATED_APP_DIR, 'src', 'components');
 
-  // First, generate base components that are always needed
-  await generateBaseComponents(componentsDir, crawlData);
+  // First, generate base components (only if not extracted)
+  await generateBaseComponents(componentsDir, crawlData, components);
 
   for (const component of components) {
     try {
@@ -100,45 +100,51 @@ async function generateComponents(components, crawlData) {
 
 /**
  * Generate essential base components that should always exist
+ * Only creates fallbacks if components weren't extracted
  */
-async function generateBaseComponents(componentsDir, crawlData) {
-  const baseComponents = [
-    {
-      name: 'Sidebar',
-      code: `import React from 'react';
-
-const Sidebar: React.FC = () => {
-  return (
-    <aside className="w-64 bg-gray-900 text-white flex flex-col">
-      <div className="p-4 border-b border-gray-700">
-        <h2 className="text-lg font-semibold">Workspace</h2>
-      </div>
-      <nav className="flex-1 p-4">
-        <ul className="space-y-2">
-          <li>
-            <a href="/" className="block px-4 py-2 rounded hover:bg-gray-800">
-              Home
-            </a>
-          </li>
-          <li>
-            <a href="/projects" className="block px-4 py-2 rounded hover:bg-gray-800">
-              Projects
-            </a>
-          </li>
-          <li>
-            <a href="/tasks" className="block px-4 py-2 rounded hover:bg-gray-800">
-              Tasks
-            </a>
-          </li>
-        </ul>
-      </nav>
-    </aside>
-  );
-};
-
-export default Sidebar;`
-    },
-    {
+async function generateBaseComponents(componentsDir, crawlData, extractedComponents = []) {
+  // Check which base components are missing from extraction
+  const hasSidebar = extractedComponents.some(c => c.type === 'sidebar');
+  const hasButton = extractedComponents.some(c => c.type === 'button');
+  
+  const baseComponents = [];
+  
+  // Only add Sidebar fallback if not extracted
+  if (!hasSidebar) {
+    console.log(chalk.yellow('   ⚠ Sidebar not detected - generating from screenshot analysis...'));
+    
+    // Try to generate from first page screenshot
+    if (crawlData && crawlData.length > 0) {
+      const firstPage = crawlData[0];
+      const screenshotPath = firstPage.screenshotPath?.viewport || firstPage.screenshotPath?.full;
+      
+      try {
+        const sidebarPrompt = buildSidebarPrompt(firstPage);
+        const generatedCode = await generateComponent(
+          { name: 'Sidebar', type: 'sidebar' },
+          sidebarPrompt,
+          screenshotPath
+        );
+        
+        if (generatedCode && generatedCode.includes('export')) {
+          baseComponents.push({ name: 'Sidebar', code: generatedCode });
+          console.log(chalk.green('   ✓ Sidebar generated from screenshot'));
+        } else {
+          // Use fallback
+          baseComponents.push(getFallbackSidebar());
+        }
+      } catch (error) {
+        console.log(chalk.yellow(`   ⚠ Sidebar generation failed, using fallback: ${error.message}`));
+        baseComponents.push(getFallbackSidebar());
+      }
+    } else {
+      baseComponents.push(getFallbackSidebar());
+    }
+  }
+  
+  // Button fallback
+  if (!hasButton) {
+    baseComponents.push({
       name: 'Button',
       code: `import React from 'react';
 
@@ -171,8 +177,8 @@ const Button: React.FC<ButtonProps> = ({
 };
 
 export default Button;`
-    }
-  ];
+    });
+  }
 
   for (const component of baseComponents) {
     const filepath = path.join(componentsDir, `${component.name}.tsx`);
@@ -180,10 +186,90 @@ export default Button;`
     const exists = await fs.pathExists(filepath);
     if (!exists) {
       await fs.writeFile(filepath, component.code, 'utf-8');
-      console.log(chalk.gray(`      ✓ ${component.name}.tsx (base component)`));
+      console.log(chalk.gray(`      ✓ ${component.name}.tsx (fallback)`));
     }
   }
 }
+
+/**
+ * Get fallback Sidebar component code
+ */
+function getFallbackSidebar() {
+  return {
+    name: 'Sidebar',
+    code: `import React from 'react';
+import { Home, Search, Plus, ChevronDown, Star, Users, Calendar } from 'lucide-react';
+
+const Sidebar: React.FC = () => {
+  return (
+    <aside className="w-60 bg-[rgb(46,46,48)] text-[rgb(245,244,243)] flex flex-col h-screen">
+      <div className="p-3 border-b border-[rgb(70,70,72)]">
+        <button className="w-full flex items-center justify-between hover:bg-[rgb(60,60,62)] rounded px-2 py-1.5">
+          <div className="flex items-center gap-2">
+            <div className="w-6 h-6 bg-[rgb(255,88,74)] rounded flex items-center justify-center text-white text-xs font-semibold">
+              W
+            </div>
+            <span className="text-sm font-medium">Workspace</span>
+          </div>
+          <ChevronDown size={16} />
+        </button>
+      </div>
+      <div className="px-3 py-2">
+        <button className="w-full flex items-center gap-2 px-3 py-1.5 bg-[rgb(60,60,62)] rounded text-sm">
+          <Search size={14} />
+          <span>Search</span>
+        </button>
+      </div>
+      <nav className="flex-1 overflow-y-auto px-2 py-1">
+        <ul className="space-y-0.5">
+          <li><a href="/" className="flex items-center gap-2 px-2 py-1.5 rounded text-sm hover:bg-[rgb(60,60,62)]"><Home size={16} /><span>Home</span></a></li>
+          <li><a href="/tasks" className="flex items-center gap-2 px-2 py-1.5 rounded text-sm hover:bg-[rgb(60,60,62)]"><Calendar size={16} /><span>My tasks</span></a></li>
+          <li><a href="#" className="flex items-center gap-2 px-2 py-1.5 rounded text-sm hover:bg-[rgb(60,60,62)]"><Users size={16} /><span>Inbox</span></a></li>
+        </ul>
+        <div className="mt-4">
+          <div className="flex items-center justify-between px-2 py-1.5 text-xs text-[rgb(180,180,182)]">
+            <div className="flex items-center gap-1.5"><Star size={12} /><span>Starred</span></div>
+            <Plus size={12} />
+          </div>
+        </div>
+      </nav>
+      <div className="border-t border-[rgb(70,70,72)] p-2">
+        <button className="w-full flex items-center justify-center gap-2 px-3 py-2 bg-[rgb(255,88,74)] hover:bg-[rgb(230,78,64)] text-white rounded text-sm font-medium">
+          <Plus size={16} /><span>Create</span>
+        </button>
+      </div>
+    </aside>
+  );
+};
+
+export default Sidebar;`
+  };
+}
+
+/**
+ * Build prompt for Sidebar generation
+ */
+function buildSidebarPrompt(pageData) {
+  const colors = pageData.parsedCSS?.colors?.slice(0, 20) || [];
+  
+  return `Create a Sidebar navigation component based on the screenshot.
+
+EXTRACTED COLORS: ${colors.join(', ')}
+
+The Sidebar should:
+- Be positioned on the left side with fixed width (around 240-260px)
+- Use dark background color from extracted palette (typically rgb(46,46,48) or similar)
+- Include navigation items with icons (use lucide-react)
+- Have sections for: workspace selector, search, main navigation, starred, projects, teams
+- Include hover states with slightly lighter background
+- Use exact colors from the extracted palette above
+
+Study the screenshot carefully and replicate the exact visual design.
+
+Return only the complete TypeScript React component code.`;
+}
+
+
 
 /**
  * Generate component index file
